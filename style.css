@@ -1132,6 +1132,7 @@ kbd {
 .t-gris { color: var(--gris); }
 .t-prompt { color: var(--vert); font-weight: 600; white-space: nowrap; }
 .term-form { display: flex; align-items: center; gap: 10px; padding: 4px 18px 16px; font: 0.88rem "JetBrains Mono", monospace; }
+.term-form[hidden] { display: none; }
 .term-form input {
   flex: 1; min-width: 0;
   border: 0; outline: 0;
@@ -1159,3 +1160,49 @@ kbd {
 }
 .t-cmd:hover, .t-cmd:focus-visible { background: var(--vert-doux); outline: none; }
 .t-guide { display: inline-block; padding: 2px 8px; border-left: 2px solid var(--vert); background: var(--vert-doux); color: var(--titre); }
+
+/* ----- Easter egg : Snake dans le terminal (commande cachée « snake ») ----- */
+.snake { display: grid; justify-items: start; gap: 6px; margin: 4px 0 10px; white-space: normal; }
+.snake-info, .snake-aide { white-space: pre; }
+.snake-aide { color: var(--gris); font-size: 0.78rem; }
+.snake-grille {
+  position: relative;
+  margin: 0;
+  font: inherit;
+  padding: 4px 6px;
+  border: 1px solid rgba(52, 211, 153, 0.45);
+  border-radius: 4px;
+  line-height: 1.15;
+  touch-action: none;
+  user-select: none;
+}
+/* chaque case fait 2 caractères de large, quelle que soit la police des blocs ▓ █ */
+.snake-grille > span:not(.snake-msg) { display: inline-block; width: 2ch; overflow: hidden; vertical-align: top; text-align: center; }
+.snake-vide { color: rgba(142, 165, 154, 0.18); }
+.snake-corps { color: var(--vert-fonce); }
+.snake-tete { color: var(--vert); text-shadow: 0 0 8px rgba(52, 211, 153, 0.6); }
+.snake-pomme { color: #e5534b; font-weight: 600; }
+.snake-voile .snake-corps, .snake-voile .snake-tete, .snake-voile .snake-pomme { opacity: 0.35; }
+.snake-msg {
+  position: absolute; inset: 0;
+  display: grid; place-content: center; gap: 4px;
+  text-align: center;
+}
+.snake-msg b { color: var(--titre); font-size: 1.1rem; letter-spacing: 3px; padding: 2px 12px; background: #070d0a; }
+.snake-msg small { color: var(--gris); font-size: 0.75rem; background: #070d0a; padding: 0 8px; }
+.snake-pad {
+  display: grid; grid-template-columns: repeat(3, 52px); grid-auto-rows: 42px; gap: 6px;
+  justify-self: center; margin-top: 4px;
+}
+.snake-pad button {
+  border: 1px solid var(--bordure); border-radius: 8px;
+  background: #0c1712; color: var(--vert);
+  font: 600 0.9rem "JetBrains Mono", monospace;
+  box-shadow: 0 3px 0 var(--touche);
+  touch-action: manipulation;
+}
+.snake-pad button:active { transform: translateY(2px); box-shadow: 0 1px 0 var(--touche); }
+.snake-pad [data-dir="haut"] { grid-column: 2; }
+.snake-pad [data-dir="gauche"] { grid-column: 1; }
+.snake-pad [data-dir="bas"] { grid-column: 2; }
+.snake-pad .snake-quitter { grid-column: 3; grid-row: 3; color: var(--gris); box-shadow: none; }

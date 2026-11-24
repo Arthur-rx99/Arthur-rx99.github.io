@@ -152,8 +152,177 @@
     ],
     hack: () => ["Accès refusé. Mais tu peux me recruter, c'est plus simple. → " + v("contact")],
     "rm": (args) => (args.join(" ").includes("-rf") ? ["Nice try. Ce portfolio est en lecture seule 🛡️"] : ["rm: opération non permise"]),
+    snake: () => { lancerSnake(); return []; },
   };
-  const NOMS = Object.keys(COMMANDES).filter((n) => !["sudo", "nmap", "hack", "rm"].includes(n));
+  const NOMS = Object.keys(COMMANDES).filter((n) => !["sudo", "nmap", "hack", "rm", "snake"].includes(n));
+
+  // ----- Easter egg : un Snake en ASCII, joué directement dans le terminal -----
+  let jeu = null; // partie en cours (null = pas de jeu)
+  const RECORD = "snake-record";
+  const lireRecord = () => { try { return +localStorage.getItem(RECORD) || 0; } catch { return 0; } };
+  const ecrireRecord = (n) => { try { localStorage.setItem(RECORD, n); } catch {} };
+  const tactile = matchMedia("(pointer: coarse)").matches;
+
+  function lancerSnake() {
+    // Taille de la grille selon la place dispo (1 case = 2 caractères, pour qu'elle soit carrée)
+    const mesure = document.createElement("span");
+    mesure.textContent = "MMMMMMMMMM";
+    sortie.appendChild(mesure);
+    const cw = mesure.getBoundingClientRect().width / 10;
+    const fs = parseFloat(getComputedStyle(sortie).fontSize) || 14;
+    mesure.remove();
+    const limite = (n, min, max) => Math.max(min, Math.min(max, n));
+    const cols = limite(Math.floor((sortie.clientWidth - 50) / cw / 2), 10, 22);
+    // hauteur dispo − marges − 3 lignes de texte (score, aide) − pad tactile, puis − 2 pour les bords
+    const libre = sortie.clientHeight - 30 - 3 * fs * 1.6 - (tactile ? 160 : 0);
+    const rows = limite(Math.floor(libre / (fs * 1.15)) - 1, 8, 16);
+
+    const el = document.createElement("div");
+    el.className = "snake";
+    el.innerHTML = `<div class="snake-info"></div><pre class="snake-grille" aria-label="Jeu Snake"></pre>
+      <div class="snake-aide">${tactile ? "glisse sur la grille ou utilise les flèches" : "← ↑ → ↓ ou ZQSD · espace pause · échap quitter"}</div>
+      ${tactile ? `<div class="snake-pad">
+        <button type="button" data-dir="haut" aria-label="Haut">▲</button>
+        <button type="button" data-dir="gauche" aria-label="Gauche">◀</button>
+        <button type="button" data-action="pause" aria-label="Pause">❚❚</button>
+        <button type="button" data-dir="droite" aria-label="Droite">▶</button>
+        <button type="button" data-dir="bas" aria-label="Bas">▼</button>
+        <button type="button" data-action="quitter" class="snake-quitter" aria-label="Quitter">✕</button>
+      </div>` : ""}`;
+    sortie.appendChild(el);
+    form.hidden = true;
+    saisie.blur();
+
+    const DIRS = { haut: [0, -1], bas: [0, 1], gauche: [-1, 0], droite: [1, 0] };
+    const info = el.querySelector(".snake-info");
+    const grille = el.querySelector(".snake-grille");
+
+    jeu = { el, cols, rows, record: lireRecord() };
+    const nouvellePartie = () => {
+      const x = Math.floor(cols / 2), y = Math.floor(rows / 2);
+      Object.assign(jeu, {
+        corps: [[x, y], [x - 1, y], [x - 2, y]],
+        dir: [1, 0], file: [], score: 0, vitesse: 140,
+        etat: "jeu", nouveauRecord: false,
+      });
+      placerPomme();
+      dessiner();
+      relancer();
+    };
+    const placerPomme = () => {
+      const libres = [];
+      for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++)
+        if (!jeu.corps.some(([a, b]) => a === x && b === y)) libres.push([x, y]);
+      jeu.pomme = libres[Math.floor(Math.random() * libres.length)];
+    };
+    const relancer = () => { clearInterval(jeu.timer); jeu.timer = setInterval(tour, jeu.vitesse); };
+
+    function tour() {
+      if (jeu.etat !== "jeu") return;
+      if (jeu.file.length) jeu.dir = jeu.file.shift();
+      const [hx, hy] = jeu.corps[0];
+      const tete = [hx + jeu.dir[0], hy + jeu.dir[1]];
+      const mange = jeu.pomme && tete[0] === jeu.pomme[0] && tete[1] === jeu.pomme[1];
+      const corps = mange ? jeu.corps : jeu.corps.slice(0, -1); // la queue avance, sauf si on mange
+      if (tete[0] < 0 || tete[1] < 0 || tete[0] >= cols || tete[1] >= rows || corps.some(([a, b]) => a === tete[0] && b === tete[1])) {
+        jeu.etat = "fin";
+        clearInterval(jeu.timer);
+        if (jeu.score > jeu.record) { jeu.record = jeu.score; jeu.nouveauRecord = true; ecrireRecord(jeu.score); }
+        dessiner();
+        return;
+      }
+      jeu.corps = [tete, ...corps];
+      if (mange) {
+        jeu.score++;
+        placerPomme();
+        if (jeu.vitesse > 70) { jeu.vitesse -= 4; relancer(); } // ça accélère un peu à chaque pomme
+      }
+      dessiner();
+    }
+
+    function dessiner() {
+      const cases = Array.from({ length: rows }, () => Array(cols).fill(`<span class="snake-vide"> ·</span>`));
+      if (jeu.pomme) cases[jeu.pomme[1]][jeu.pomme[0]] = `<span class="snake-pomme">&lt;&gt;</span>`;
+      jeu.corps.forEach(([x, y], i) => { cases[y][x] = i ? `<span class="snake-corps">▓▓</span>` : `<span class="snake-tete">██</span>`; });
+      const texte = cases.map((l) => l.join("")).join("\n");
+      // Message au centre de la grille (pause / game over)
+      const msg = jeu.etat === "pause" ? ["PAUSE", tactile ? "touche ❚❚ pour reprendre" : "espace pour reprendre"]
+        : jeu.etat === "fin" ? ["GAME OVER", jeu.nouveauRecord ? "★ nouveau record ★" : `score : ${jeu.score}`, tactile ? "touche la grille pour rejouer" : "entrée pour rejouer · échap quitter"]
+        : null;
+      grille.innerHTML = texte;
+      grille.classList.toggle("snake-voile", !!msg);
+      if (msg) grille.insertAdjacentHTML("beforeend", `<span class="snake-msg">${msg.map((m, i) => i ? `<small>${m}</small>` : `<b>${m}</b>`).join("")}</span>`);
+      info.innerHTML = `${v("snake")} ${g("·")} score ${v(String(jeu.score).padStart(3, "0"))} ${g("·")} record ${v(String(jeu.record).padStart(3, "0"))}`;
+      sortie.scrollTop = sortie.scrollHeight;
+    }
+
+    // Changement de direction (on refuse le demi-tour sur soi-même)
+    jeu.tourner = (nom) => {
+      if (jeu.etat === "fin") return;
+      if (jeu.etat === "pause") jeu.etat = "jeu";
+      const d = DIRS[nom];
+      const derniere = jeu.file[jeu.file.length - 1] || jeu.dir;
+      if (d[0] === -derniere[0] && d[1] === -derniere[1]) return;
+      if (d[0] === derniere[0] && d[1] === derniere[1]) return;
+      if (jeu.file.length < 3) jeu.file.push(d);
+    };
+    jeu.pause = () => {
+      if (jeu.etat === "fin") return;
+      jeu.etat = jeu.etat === "pause" ? "jeu" : "pause";
+      dessiner();
+    };
+    jeu.rejouer = nouvellePartie;
+
+    // Tactile : glisser sur la grille, ou les boutons du pad
+    let depart = null;
+    grille.addEventListener("touchstart", (e) => { depart = [e.touches[0].clientX, e.touches[0].clientY]; }, { passive: true });
+    grille.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
+    grille.addEventListener("touchend", (e) => {
+      if (!depart) return;
+      const dx = e.changedTouches[0].clientX - depart[0], dy = e.changedTouches[0].clientY - depart[1];
+      depart = null;
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) { if (jeu.etat === "fin") nouvellePartie(); return; }
+      jeu.tourner(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "droite" : "gauche") : (dy > 0 ? "bas" : "haut"));
+    });
+    grille.addEventListener("click", () => { if (!tactile && jeu.etat === "fin") nouvellePartie(); });
+    el.querySelectorAll(".snake-pad button").forEach((b) => b.addEventListener("pointerdown", (e) => {
+      e.preventDefault();
+      if (b.dataset.dir) jeu.tourner(b.dataset.dir);
+      else if (b.dataset.action === "pause") jeu.pause();
+      else quitterSnake();
+    }));
+
+    nouvellePartie();
+  }
+
+  function quitterSnake() {
+    if (!jeu) return;
+    clearInterval(jeu.timer);
+    const { el, score, record } = jeu;
+    jeu = null;
+    el.remove();
+    afficher([`${g("snake terminé ·")} score ${v(score)} ${g("·")} record ${v(record)}`, ""]);
+    form.hidden = false;
+    if (!fenetre.hidden) saisie.focus();
+  }
+
+  // Clavier pendant la partie : flèches, ZQSD (AZERTY) ou WASD (QWERTY), selon la position physique des touches
+  const TOUCHES = {
+    ArrowUp: "haut", ArrowDown: "bas", ArrowLeft: "gauche", ArrowRight: "droite",
+    KeyW: "haut", KeyS: "bas", KeyA: "gauche", KeyD: "droite",
+  };
+  document.addEventListener("keydown", (e) => {
+    if (!jeu || e.ctrlKey || e.metaKey || e.altKey) return;
+    const dir = TOUCHES[e.key] || TOUCHES[e.code];
+    if (dir) jeu.tourner(dir);
+    else if (e.key === " " || e.key === "p") jeu.pause();
+    else if (e.key === "Enter" && jeu.etat === "fin") jeu.rejouer();
+    else if (e.key === "Escape" || e.key === "q") quitterSnake();
+    else return;
+    e.preventDefault();
+    e.stopImmediatePropagation();
+  }, true);
+  document.addEventListener("visibilitychange", () => { if (document.hidden && jeu && jeu.etat === "jeu") jeu.pause(); });
 
   // Commande la plus proche (distance de Levenshtein ≤ 2)
   function suggestion(mot) {
@@ -220,6 +389,7 @@
     setTimeout(() => saisie.focus(), 30);
   }
   function fermer() {
+    quitterSnake();
     fenetre.hidden = true;
     document.body.classList.remove("term-actif");
     btn.setAttribute("aria-expanded", "false");
@@ -231,6 +401,7 @@
   fenetre.querySelector(".term-fermer").addEventListener("click", fermer);
   fenetre.addEventListener("click", (e) => { if (e.target === fenetre) fermer(); });
   sortie.addEventListener("click", (e) => {
+    if (jeu) return; // pendant le Snake, les clics restent dans le jeu
     const bouton = e.target.closest(".t-cmd");
     if (bouton) { executer(bouton.dataset.cmd); saisie.focus(); return; }
     if (!getSelection().toString()) saisie.focus();
