@@ -446,6 +446,7 @@
         `Bienvenue sur le terminal d'Arthur ${g("(v1.0)")}`,
         `Jamais utilisé de terminal ? Tape ${c("guide")} pour une visite guidée.`,
         `Sinon, tape ${c("help")} pour voir toutes les commandes.`,
+        g("🚩 Psst… 5 flags sont cachés sur ce site. Tape ") + c("ctf") + g("."),
         "",
       ]);
     }
