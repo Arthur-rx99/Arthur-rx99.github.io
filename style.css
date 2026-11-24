@@ -490,3 +490,559 @@ h1, h2, h3 { color: var(--titre); }
   html { scroll-behavior: auto; }
   .reveal { opacity: 1; transform: none; transition: none; }
 }
+
+/* =========================================================
+   RETOUCHES : un rendu plus « fait main »
+   - moins de lueurs et de dégradés, tout n'est plus centré
+   - titres en casse normale, sous-titres façon commentaire de code
+   - boutons originaux : touche de clavier + ligne de commande
+   ========================================================= */
+:root { --rayon: 8px; --touche: #0b7a57; }
+
+body { background: var(--bg); }
+
+/* ----- Boutons « touche de clavier » : on appuie vraiment dessus ----- */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px 12px 20px;
+  margin-bottom: 6px; /* place pour l'épaisseur de la touche */
+  background: var(--vert);
+  color: #06120c;
+  border: 0;
+  border-radius: 8px;
+  font: 600 0.95rem "JetBrains Mono", monospace;
+  letter-spacing: 0;
+  text-transform: none;
+  box-shadow: 0 6px 0 var(--touche), 0 10px 14px rgba(0, 0, 0, 0.35);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.2s;
+}
+.btn:hover {
+  background: #4ee0a8;
+  border-color: transparent;
+  transform: translateY(2px);
+  box-shadow: 0 4px 0 var(--touche), 0 6px 10px rgba(0, 0, 0, 0.35);
+}
+.btn:active { transform: translateY(6px); box-shadow: 0 0 0 var(--touche), 0 2px 4px rgba(0, 0, 0, 0.35); }
+.btn:focus-visible { outline: 2px solid var(--titre); outline-offset: 4px; }
+.key-legend {
+  padding: 2px 6px;
+  border: 1px solid rgba(6, 18, 12, 0.35);
+  border-radius: 4px;
+  font: 500 0.7rem "JetBrains Mono", monospace;
+  opacity: 0.7;
+}
+.form .btn { justify-content: space-between; }
+
+/* ----- Bouton « ligne de commande » : le curseur apparaît au survol ----- */
+.btn-cmd {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 6px;
+  font: 500 0.95rem "JetBrains Mono", monospace;
+  color: var(--texte);
+  border-bottom: 1px dashed var(--bordure);
+  transition: color 0.2s, border-color 0.2s;
+}
+.btn-cmd .prompt { color: var(--vert); }
+.btn-cmd .cursor { width: 9px; height: 1.1em; background: var(--vert); opacity: 0; }
+.btn-cmd:hover { color: var(--titre); border-bottom-color: var(--vert); }
+.btn-cmd:hover .cursor { animation: clignote 1s steps(1) infinite; }
+.btn-cmd:focus-visible { outline: 2px solid var(--vert); outline-offset: 4px; }
+@keyframes clignote { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+/* ----- Filtres : petites touches qui restent enfoncées ----- */
+.filters { justify-content: flex-start; gap: 12px; }
+.filter {
+  padding: 7px 14px;
+  margin-bottom: 4px;
+  background: #13201a;
+  border: 1px solid var(--bordure);
+  border-radius: 6px;
+  font: 500 0.85rem "JetBrains Mono", monospace;
+  color: var(--texte);
+  box-shadow: 0 4px 0 #050b08;
+  transition: transform 0.08s, box-shadow 0.08s, color 0.2s;
+}
+.filter:hover { color: var(--vert); border-color: var(--bordure); transform: translateY(1px); box-shadow: 0 3px 0 #050b08; }
+.filter.active { background: #13201a; color: var(--vert); border-color: var(--vert); transform: translateY(4px); box-shadow: 0 0 0 #050b08; }
+
+/* ----- Liens de projets : la flèche avance ----- */
+.link { transition: color 0.2s, letter-spacing 0.2s; }
+.link:hover { letter-spacing: 0.3px; }
+
+/* ----- Hero : aligné à gauche, sans halo ----- */
+.hero { text-align: left; place-items: center start; }
+.hero-glow { display: none; }
+#hero-canvas { opacity: 0.55; }
+.hero-content { width: min(1100px, 100% - 32px); margin: 0 auto; padding: 0; }
+.hero h1 { font-size: clamp(3rem, 10vw, 6.5rem); letter-spacing: 0; }
+.hero-sub {
+  font-size: clamp(1.15rem, 2.6vw, 1.5rem);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
+  color: var(--vert);
+  margin: 14px 0 10px;
+}
+.hero-text { max-width: 34em; }
+.hero-btns { justify-content: flex-start; align-items: center; gap: 22px; }
+
+/* ----- Titres : casse normale, alignés à gauche, sans trait décoratif ----- */
+.title { text-transform: none; letter-spacing: 0; font-size: clamp(2rem, 4.4vw, 3rem); }
+.title::after, .title.center::after { display: none; }
+.title.center { text-align: left; }
+.subtitle {
+  text-align: left;
+  font: 400 0.95rem "JetBrains Mono", monospace;
+  color: var(--gris);
+  margin-bottom: 44px;
+}
+.subtitle::before { content: "// "; color: var(--vert); }
+
+/* ----- À propos : photo carrée, sans halo ----- */
+.avatar {
+  border-radius: 12px;
+  border: 1px solid var(--bordure);
+  background: #10231a;
+  box-shadow: 12px 12px 0 var(--vert-doux);
+}
+
+/* ----- Atouts : cartes sobres, alignées à gauche ----- */
+.card { text-align: left; padding: 26px 22px; }
+.card::before { display: none; }
+.card:hover { transform: none; box-shadow: none; border-color: rgba(52, 211, 153, 0.45); }
+.icon { width: auto; height: auto; margin: 0 0 16px; border: 0; background: none; border-radius: 0; display: block; }
+.icon svg { width: 30px; height: 30px; }
+.card:hover .icon { background: none; box-shadow: none; }
+.card:hover .icon svg { stroke: var(--vert); }
+
+/* ----- Projets : survol discret ----- */
+.project:hover { transform: none; box-shadow: none; border-color: rgba(52, 211, 153, 0.5); }
+.project:hover .project-visual img { transform: none; }
+.tags span { border-radius: 4px; }
+
+/* ----- Parcours : sans effets lumineux ----- */
+.timeline::before { background: rgba(52, 211, 153, 0.35); }
+.tl-item::before { box-shadow: none; }
+.tl-date { border-radius: 4px; }
+.tl-card:hover { box-shadow: none; border-color: rgba(52, 211, 153, 0.45); }
+.tl-start { box-shadow: none; border-radius: 8px; }
+.tl-start-icon { border-radius: 6px; }
+.tl-start em { border-radius: 4px; }
+.cv-banner { background: none; border: 1px dashed var(--bordure); text-align: left; display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+.cv-banner p { margin: 0; }
+
+/* ----- Loisirs : une simple liste, sans emojis ----- */
+.hobbies { list-style: none; justify-content: flex-start; gap: 10px 12px; margin-top: 0; }
+.hobbies li {
+  padding: 10px 16px;
+  border: 1px solid var(--bordure);
+  border-radius: 6px;
+  font-weight: 600;
+  color: var(--titre);
+}
+.hobbies li span { font: 400 0.8rem "JetBrains Mono", monospace; color: var(--gris); margin-left: 6px; }
+
+/* ----- Formulaire et apparition ----- */
+.form input, .form textarea { border-radius: 6px; }
+.form input:focus, .form textarea:focus { box-shadow: none; }
+.reveal { transform: translateY(12px); transition: 0.5s ease; }
+
+@media (max-width: 900px) {
+  .about { text-align: left; }
+  .about .avatar { margin: 0; }
+  .infos li { justify-content: flex-start; }
+}
+@media (max-width: 500px) {
+  .hero-btns { flex-direction: column; align-items: flex-start; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .btn, .filter { transition: none; }
+  .btn-cmd:hover .cursor { animation: none; opacity: 1; }
+}
+
+/* ----- Atouts : chaque carte est une grosse touche de clavier ----- */
+.cards { gap: 18px; }
+.card {
+  padding: 22px 20px 24px;
+  background: linear-gradient(#18271f, #121e18);
+  border: 1px solid #23372d;
+  border-radius: 12px;
+  box-shadow: 0 7px 0 #050b08, 0 12px 18px rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.2s;
+}
+.card:hover {
+  transform: translateY(5px);
+  box-shadow: 0 2px 0 #050b08, 0 4px 8px rgba(0, 0, 0, 0.3);
+  border-color: rgba(52, 211, 153, 0.55);
+}
+/* Le raccourci F1 à F5 en haut à droite, comme sur une touche de fonction */
+.cards { counter-reset: touche; }
+.card { counter-increment: touche; }
+.card::after {
+  content: "F" counter(touche);
+  position: absolute;
+  top: 14px; right: 14px;
+  padding: 1px 6px;
+  border: 1px solid #2a4236;
+  border-radius: 4px;
+  font: 500 0.7rem "JetBrains Mono", monospace;
+  color: var(--gris);
+}
+.card:hover::after { color: var(--vert); border-color: rgba(52, 211, 153, 0.55); }
+
+/* ----- Compétences : deux petits claviers, une touche par compétence ----- */
+.skills { gap: 28px; margin-top: 48px; }
+.window {
+  padding: 18px 18px 22px;
+  background: #0b140f;
+  border: 1px solid var(--bordure);
+  border-radius: 14px;
+}
+.window:hover { border-color: var(--bordure); }
+.window-bar { padding: 0 2px 14px; background: none; border: 0; gap: 0; }
+.window-bar i { display: none; }
+.window-bar span { margin: 0; font: 500 0.85rem "JetBrains Mono", monospace; color: var(--gris); }
+.window-bar span::before { content: "// "; color: var(--vert); }
+.window-list { display: flex; flex-wrap: wrap; gap: 14px 10px; padding: 0; }
+.window-list li {
+  padding: 10px 14px 12px;
+  background: linear-gradient(#1b2b23, #15221b);
+  border: 1px solid #23372d;
+  border-radius: 7px;
+  font: 500 0.88rem "JetBrains Mono", monospace;
+  color: var(--titre);
+  box-shadow: 0 4px 0 #050b08;
+  transition: transform 0.08s, box-shadow 0.08s, color 0.15s, border-color 0.15s;
+}
+.window-list li::before { content: none; }
+.window-list li:hover {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #050b08;
+  color: var(--vert);
+  border-color: rgba(52, 211, 153, 0.55);
+}
+/* La première touche de chaque clavier est « allumée », comme Verr. Maj */
+.window-list li:first-child::after {
+  content: "";
+  display: inline-block;
+  width: 6px; height: 6px;
+  margin-left: 10px;
+  border-radius: 50%;
+  background: var(--vert);
+  box-shadow: 0 0 6px var(--vert);
+  vertical-align: 2px;
+}
+@media (prefers-reduced-motion: reduce) { .card, .window-list li { transition: none; } }
+
+/* ----- Compétences : bandeaux de logos qui défilent ----- */
+.skills { display: grid; grid-template-columns: 1fr; gap: 36px; margin-top: 64px; }
+.marquee-title { font: 500 0.9rem "JetBrains Mono", monospace; color: var(--gris); margin-bottom: 14px; }
+.marquee-title::before { content: "// "; color: var(--vert); }
+.marquee {
+  overflow: hidden;
+  padding: 6px 0 12px;
+  /* fondu sur les bords */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee-track {
+  list-style: none;
+  display: flex;
+  gap: 16px;
+  width: max-content;
+  animation: defile 30s linear infinite;
+}
+.marquee:hover .marquee-track { animation-play-state: paused; }
+.marquee-track li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px 12px 14px;
+  background: linear-gradient(#1b2b23, #15221b);
+  border: 1px solid #23372d;
+  border-radius: 10px;
+  box-shadow: 0 5px 0 #050b08;
+  font: 500 0.95rem "JetBrains Mono", monospace;
+  color: var(--titre);
+  white-space: nowrap;
+  transition: transform 0.08s, box-shadow 0.08s, border-color 0.15s;
+}
+.marquee-track li:hover { transform: translateY(5px); box-shadow: 0 0 0 #050b08; border-color: rgba(52, 211, 153, 0.55); }
+.marquee-track img { width: 34px; height: 34px; }
+@keyframes defile { to { transform: translateX(-50%); } }
+
+@media (max-width: 500px) {
+  .marquee-track li { padding: 10px 16px 10px 12px; font-size: 0.85rem; }
+  .marquee-track img { width: 28px; height: 28px; }
+}
+/* Sans animation : les logos s'affichent simplement sur plusieurs lignes */
+@media (prefers-reduced-motion: reduce) {
+  .marquee { -webkit-mask-image: none; mask-image: none; }
+  .marquee-track { animation: none; flex-wrap: wrap; width: auto; }
+  .marquee-track li[aria-hidden="true"] { display: none; }
+}
+.skills { grid-template-columns: minmax(0, 1fr); }
+.marquee-row, .marquee { min-width: 0; max-width: 100%; }
+
+/* ----- Fond interactif : le scan réseau est bien visible ----- */
+#hero-canvas { opacity: 1; }
+
+/* ----- Atouts : un terminal à onglets (remplace les 5 cartes) ----- */
+.cards { display: none; }
+.atouts {
+  background: #07100c;
+  border: 1px solid var(--bordure);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.atouts-bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--bordure);
+  background: #0c1712;
+}
+.atouts-bar i { width: 11px; height: 11px; border-radius: 50%; background: #23372d; }
+.atouts-bar i:first-child { background: #e5534b; }
+.atouts-bar i:nth-child(2) { background: #e3b341; }
+.atouts-bar i:nth-child(3) { background: var(--vert); }
+.atouts-bar span { margin-left: 10px; font: 500 0.8rem "JetBrains Mono", monospace; color: var(--gris); }
+
+.atouts-inner { display: grid; grid-template-columns: 290px 1fr; min-height: 300px; }
+.atouts-list { display: flex; flex-direction: column; padding: 12px; gap: 4px; border-right: 1px solid var(--bordure); }
+.atout-tab {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  font: 500 0.92rem "JetBrains Mono", monospace;
+  color: var(--gris);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.atout-tab .num { color: #3d5a4b; font-size: 0.8rem; }
+.atout-tab:hover { color: var(--titre); background: rgba(52, 211, 153, 0.05); }
+.atout-tab[aria-selected="true"] { color: #06120c; background: var(--vert); }
+.atout-tab[aria-selected="true"] .num { color: #06120c; opacity: 0.6; }
+.atout-tab[aria-selected="true"]::after { content: "▸"; margin-left: auto; }
+.atout-tab:focus-visible { outline: 2px solid var(--titre); outline-offset: 2px; }
+
+.atouts-screen { padding: 26px 30px; }
+.atout-cmd { font: 0.88rem "JetBrains Mono", monospace; color: var(--texte); margin-bottom: 22px; white-space: nowrap; overflow: hidden; }
+.atout-cmd .prompt { color: var(--vert); }
+/* la commande se tape à chaque changement d'onglet */
+.atout-cmd.tape { animation: taper 0.7s steps(30) both; }
+@keyframes taper { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+
+.atout-out { display: grid; grid-template-columns: 84px 1fr; gap: 24px; align-items: start; animation: apparait 0.4s 0.5s both; }
+@keyframes apparait { from { opacity: 0; transform: translateY(6px); } }
+.atout-icon {
+  width: 84px; height: 84px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgba(52, 211, 153, 0.4);
+  border-radius: 10px;
+}
+.atout-icon svg { width: 40px; height: 40px; fill: none; stroke: var(--vert); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.atout-panel h3 { font: 700 1.7rem "Playfair Display", serif; margin-bottom: 10px; }
+.atout-panel p { color: var(--texte); max-width: 36em; }
+.atout-tags { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.atout-tags li { font: 0.78rem "JetBrains Mono", monospace; color: var(--vert); border: 1px solid var(--bordure); border-radius: 4px; padding: 3px 9px; }
+.atout-tags li::before { content: "#"; opacity: 0.6; }
+
+.atouts-progress { height: 2px; background: rgba(52, 211, 153, 0.08); }
+.atouts-progress span { display: block; height: 100%; background: var(--vert); transform: scaleX(0); transform-origin: left; }
+
+@media (max-width: 768px) {
+  .atouts-inner { grid-template-columns: 1fr; }
+  .atouts-list { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--bordure); scrollbar-width: none; }
+  .atout-tab { white-space: nowrap; flex: none; }
+  .atout-tab[aria-selected="true"]::after { content: none; }
+  .atouts-screen { padding: 20px; }
+  .atout-out { grid-template-columns: 1fr; gap: 16px; }
+  .atout-icon { width: 60px; height: 60px; }
+  .atout-icon svg { width: 30px; height: 30px; }
+  .atout-cmd { font-size: 0.75rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .atout-cmd.tape, .atout-out { animation: none; }
+}
+
+/* ----- Bandeaux de logos : défilent en continu, rien n'est cliquable ----- */
+.marquee { pointer-events: none; user-select: none; }
+.marquee:hover .marquee-track { animation-play-state: running; }
+.marquee-track li:hover { transform: none; box-shadow: 0 5px 0 #050b08; border-color: #23372d; }
+.marquee-track img { -webkit-user-drag: none; }
+@media (max-width: 768px) { #hero-canvas { opacity: 0.55; } }
+
+/* ----- Barre du terminal des atouts : style Linux (pas de pastilles Mac) ----- */
+.atouts-bar { justify-content: space-between; gap: 12px; padding: 8px 8px 8px 14px; }
+.bar-icon {
+  padding: 1px 6px;
+  border: 1px solid var(--bordure);
+  border-radius: 4px;
+  font: 600 0.75rem "JetBrains Mono", monospace;
+  color: var(--vert);
+}
+.atouts-bar .bar-title { margin: 0 auto 0 0; }
+.bar-ctrl { display: flex; gap: 2px; }
+.bar-ctrl b {
+  width: 30px; height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  font: 400 0.9rem "JetBrains Mono", monospace;
+  color: var(--gris);
+}
+.bar-ctrl b.fermer { color: var(--texte); }
+
+/* ----- Photo : effet au survol (scan + légende whoami) ----- */
+figure.avatar { margin: 0; cursor: default; transition: transform 0.35s ease, box-shadow 0.35s ease, border-color 0.35s; }
+.avatar img { filter: grayscale(0.55) contrast(1.05); transition: filter 0.4s ease, transform 0.6s ease; }
+.avatar::after { /* ligne de scan */
+  content: "";
+  position: absolute;
+  left: 0; right: 0; top: -20%;
+  height: 18%;
+  background: linear-gradient(transparent, rgba(52, 211, 153, 0.35), transparent);
+  opacity: 0;
+  pointer-events: none;
+}
+.avatar figcaption {
+  position: absolute;
+  left: 10px; right: 10px; bottom: 10px;
+  padding: 8px 10px;
+  background: rgba(7, 16, 12, 0.88);
+  border: 1px solid var(--bordure);
+  border-radius: 6px;
+  font: 0.72rem/1.5 "JetBrains Mono", monospace;
+  color: var(--texte);
+  text-align: left;
+  transform: translateY(calc(100% + 14px));
+  transition: transform 0.35s ease;
+}
+.avatar figcaption b { display: block; color: var(--vert); font-weight: 500; }
+.avatar:hover { transform: rotate(-2deg) translateY(-4px); border-color: var(--vert); box-shadow: 16px 16px 0 rgba(52, 211, 153, 0.2); }
+.avatar:hover img { filter: none; transform: scale(1.06); }
+.avatar:hover::after { animation: scan-photo 1.2s ease-in-out; }
+.avatar:hover figcaption { transform: none; }
+@keyframes scan-photo { 0% { top: -20%; opacity: 1; } 100% { top: 105%; opacity: 1; } }
+
+/* ----- En dehors de l'écran : cartes avec logos et photo ----- */
+.loisirs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  grid-template-areas: "run basket muscu" "run jeux jeux" "run pentest pentest";
+  gap: 16px;
+}
+.loisir {
+  position: relative;
+  padding: 22px;
+  background: var(--carte);
+  border: 1px solid var(--bordure);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: border-color 0.25s, transform 0.25s;
+}
+.loisir:hover { border-color: rgba(52, 211, 153, 0.5); transform: translateY(-3px); }
+.loisir h3 { font-size: 1.15rem; margin-bottom: 2px; }
+.loisir p { font: 0.82rem "JetBrains Mono", monospace; color: var(--gris); }
+.loisir-logo { width: 56px; height: 56px; margin-bottom: 18px; object-fit: contain; transition: transform 0.3s; }
+.loisir:hover .loisir-logo { transform: rotate(-8deg) scale(1.08); }
+.loisir-basket { grid-area: basket; }
+.loisir-muscu { grid-area: muscu; }
+.loisir-crossfit { width: auto; height: 76px; margin-bottom: 8px; }
+.loisir:hover .loisir-crossfit { transform: translateY(-6px); }
+.loisir-jeux { grid-area: jeux; }
+.loisir-pentest { grid-area: pentest; display: flex; align-items: center; gap: 22px; }
+.loisir-run { grid-area: run; padding: 0; min-height: 420px; display: flex; align-items: flex-end; }
+.loisir-photo { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center 30%; transition: transform 0.6s ease; }
+.loisir-run:hover .loisir-photo { transform: scale(1.05); }
+.loisir-run::before { content: ""; position: absolute; inset: 0; background: linear-gradient(transparent 45%, rgba(7, 16, 12, 0.92)); z-index: 1; }
+.loisir-txt { position: relative; z-index: 2; padding: 22px; }
+.loisir-txt p { color: var(--vert); }
+
+.jeux { list-style: none; display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 10px; margin-top: 16px; }
+.jeux li {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding: 14px 8px;
+  border: 1px solid var(--bordure);
+  border-radius: 8px;
+  background: #0b1511;
+  font: 500 0.78rem "JetBrains Mono", monospace;
+  color: var(--titre);
+  text-align: center;
+  transition: border-color 0.2s, transform 0.2s;
+}
+.jeux li:hover { border-color: var(--vert); transform: translateY(-3px); }
+.jeux img { width: 30px; height: 30px; }
+
+.loisir-logos { display: flex; gap: 12px; }
+.loisir-logos img { width: 46px; height: 46px; padding: 8px; border: 1px solid var(--bordure); border-radius: 10px; background: #0b1511; transition: transform 0.3s; }
+.loisir-pentest:hover .loisir-logos img:first-child { transform: rotate(-10deg); }
+.loisir-pentest:hover .loisir-logos img:last-child { transform: rotate(10deg); }
+.blink { color: var(--vert); animation: clignote 1s steps(1) infinite; }
+
+@media (max-width: 900px) {
+  .loisirs { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-areas: "run basket" "run muscu" "jeux jeux" "pentest pentest"; }
+}
+@media (max-width: 560px) {
+  .loisirs { grid-template-columns: minmax(0, 1fr); grid-template-areas: "run" "basket" "muscu" "jeux" "pentest"; }
+  .loisir-run { min-height: 380px; }
+  .jeux { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .avatar:hover::after, .blink { animation: none; }
+}
+.project-visual img { object-position: center top; }
+@media (max-width: 560px) { .loisir-pentest { flex-wrap: wrap; gap: 14px; } .loisir-pentest > div:last-child, .loisir-pentest h3 { width: 100%; } }
+
+/* ----- Retouches : photo éclairée, running plus compact, vrais logos de jeux ----- */
+.avatar img, .avatar:hover img { filter: none; transform: none; }
+.avatar:hover { transform: none; box-shadow: 12px 12px 0 var(--vert-doux); }
+.avatar:hover::after { animation: none; }
+
+.loisirs { grid-template-areas: "run basket muscu" "jeux jeux jeux" "pentest pentest pentest"; }
+.loisir-run { min-height: 250px; }
+.loisir-run::before { background: linear-gradient(transparent 35%, rgba(7, 16, 12, 0.9)); }
+.loisir-txt { padding: 16px 18px; }
+
+.jeux li { gap: 10px; padding: 16px 10px 12px; }
+.jeu-logo { display: flex; align-items: center; justify-content: center; height: 64px; width: 100%; }
+.jeux .jeu-logo img { width: auto; height: auto; max-width: 100%; max-height: 64px; object-fit: contain; transition: transform 0.3s; }
+.jeux .jeu-logo img[src$="valorant.svg"] { height: 44px; }
+.jeux .jeu-logo .jeu-banniere { max-height: 52px; border-radius: 5px; }
+.jeux li:hover .jeu-logo img { transform: scale(1.06); }
+
+@media (max-width: 900px) {
+  .loisirs { grid-template-areas: "run basket" "run muscu" "jeux jeux" "pentest pentest"; }
+}
+@media (max-width: 560px) {
+  .loisirs { grid-template-areas: "run" "basket" "muscu" "jeux" "pentest"; }
+  .loisir-run { min-height: 280px; }
+}
+.avatar, .avatar:hover { box-shadow: none; }
+.loisir-run .loisir-photo { object-position: center 12%; }
+
+/* ----- Bandeaux : sens fixé, et défilement conservé même si les animations sont réduites ----- */
+.marquee-row.marquee-gauche .marquee-track { animation-direction: normal; }   /* droite → gauche */
+.marquee-row.marquee-droite .marquee-track { animation-direction: reverse; }  /* gauche → droite */
+@media (prefers-reduced-motion: reduce) {
+  .marquee { -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent); }
+  .marquee-track { animation: defile 30s linear infinite; flex-wrap: nowrap; width: max-content; }
+  .marquee-row.marquee-droite .marquee-track { animation-direction: reverse; }
+  .marquee-track li[aria-hidden="true"] { display: flex; }
+}
