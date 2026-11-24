@@ -1,6 +1,100 @@
-// ===== Page de garde : date d'édition du rapport =====
-const edition = document.getElementById("edition");
-if (edition) edition.textContent = new Date().toLocaleDateString("fr-FR", { month: "long", year: "numeric" });
+// ===== Fond animé du haut de page uniquement =====
+// Des symboles "cyber" en contour flottent doucement, avec un léger effet de profondeur à la souris.
+const canvas = document.getElementById("hero-canvas");
+const ctx = canvas.getContext("2d");
+const hero = document.getElementById("accueil");
+const VERT = "52, 211, 153";
+const textes = ["</>", ">_", "{ }", "01", "#!", "$"];
+const formes = ["cadenas", "bouclier", "cle"];
+let symboles = [];
+let souris = { x: 0, y: 0 };
+
+function creerSymbole() {
+  const estTexte = Math.random() < 0.5;
+  return {
+    x: Math.random() * canvas.width,
+    y: Math.random() * canvas.height,
+    taille: 16 + Math.random() * 22,
+    profondeur: 0.3 + Math.random() * 0.7,       // plus proche = plus visible et plus réactif
+    vy: -(0.08 + Math.random() * 0.22),
+    angle: Math.random() * Math.PI * 2,
+    rotation: (Math.random() - 0.5) * 0.004,
+    texte: estTexte ? textes[Math.floor(Math.random() * textes.length)] : null,
+    forme: estTexte ? null : formes[Math.floor(Math.random() * formes.length)],
+  };
+}
+
+function initFond() {
+  canvas.width = hero.offsetWidth;
+  canvas.height = hero.offsetHeight;
+  const nombre = Math.round((canvas.width * canvas.height) / 38000);
+  symboles = Array.from({ length: Math.min(nombre, 40) }, creerSymbole);
+}
+
+function dessinerForme(forme, t) {
+  ctx.beginPath();
+  if (forme === "cadenas") {
+    ctx.rect(-t * 0.5, -t * 0.05, t, t * 0.7);
+    ctx.moveTo(-t * 0.3, -t * 0.05);
+    ctx.arc(0, -t * 0.05, t * 0.3, Math.PI, 0);
+  } else if (forme === "bouclier") {
+    ctx.moveTo(0, -t * 0.6);
+    ctx.lineTo(t * 0.5, -t * 0.4);
+    ctx.quadraticCurveTo(t * 0.5, t * 0.3, 0, t * 0.6);
+    ctx.quadraticCurveTo(-t * 0.5, t * 0.3, -t * 0.5, -t * 0.4);
+    ctx.closePath();
+  } else {
+    ctx.arc(-t * 0.3, 0, t * 0.22, 0, Math.PI * 2);
+    ctx.moveTo(-t * 0.08, 0);
+    ctx.lineTo(t * 0.55, 0);
+    ctx.moveTo(t * 0.35, 0);
+    ctx.lineTo(t * 0.35, t * 0.18);
+    ctx.moveTo(t * 0.5, 0);
+    ctx.lineTo(t * 0.5, t * 0.14);
+  }
+  ctx.stroke();
+}
+
+function animerFond() {
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  for (const s of symboles) {
+    s.y += s.vy * s.profondeur;
+    s.angle += s.rotation;
+    if (s.y < -50) { Object.assign(s, creerSymbole(), { y: canvas.height + 40 }); }
+
+    const decalX = souris.x * 25 * s.profondeur;
+    const decalY = souris.y * 25 * s.profondeur;
+
+    ctx.save();
+    ctx.translate(s.x + decalX, s.y + decalY);
+    ctx.rotate(s.angle);
+    const alpha = 0.08 + s.profondeur * 0.22;
+    ctx.strokeStyle = ctx.fillStyle = `rgba(${VERT}, ${alpha})`;
+    ctx.lineWidth = 1.4;
+    if (s.texte) {
+      ctx.font = `600 ${s.taille}px "JetBrains Mono", monospace`;
+      ctx.textAlign = "center";
+      ctx.textBaseline = "middle";
+      ctx.fillText(s.texte, 0, 0);
+    } else {
+      dessinerForme(s.forme, s.taille * 1.3);
+    }
+    ctx.restore();
+  }
+
+  requestAnimationFrame(animerFond);
+}
+
+hero.addEventListener("mousemove", (e) => {
+  const r = hero.getBoundingClientRect();
+  souris.x = (e.clientX - r.left) / r.width - 0.5;
+  souris.y = (e.clientY - r.top) / r.height - 0.5;
+});
+window.addEventListener("resize", initFond);
+initFond();
+animerFond();
+
 
 // ===== Navigation : fond au scroll, menu mobile, lien actif =====
 const nav = document.getElementById("nav");
@@ -74,7 +168,7 @@ majProgress();
 
 // ===== Machine à écrire dans le hero =====
 const typed = document.getElementById("typed");
-const roles = ["futur pentester.", "développeur web.", "ex-barman médaillé.", "anglophone C1."];
+const roles = ["Futur pentester", "Développeur web", "Ex-barman médaillé", "Anglophone C1"];
 const reduit = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 if (typed && !reduit) {
   const pause = (ms) => new Promise((r) => setTimeout(r, ms));

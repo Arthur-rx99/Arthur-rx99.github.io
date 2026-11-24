@@ -10,7 +10,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
-    href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;600&family=IBM+Plex+Sans:wght@400;500;600&family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;1,6..72,400&display=swap"
+    href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;600&family=Playfair+Display:wght@600;700&family=Space+Grotesk:wght@400;500;600;700&display=swap"
     rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -20,7 +20,7 @@
 
   <!--NAVIGATION-->
   <header class="nav" id="nav">
-    <a href="#accueil" class="logo" aria-label="Accueil">AR<span>.</span></a>
+    <a href="#accueil" class="logo"><span>&lt;</span>AR<span>/&gt;</span></a>
     <nav class="menu" id="menu">
       <a href="#maintenant"><i>01</i>En ce moment</a>
       <a href="#apropos"><i>02</i>À propos</a>
@@ -37,37 +37,20 @@
 
   <!--HERO : page de garde du rapport-->
   <section class="hero" id="accueil">
-    <div class="container hero-inner">
-      <div class="hero-meta" aria-hidden="true">
-        <span>Rapport d'audit · Réf. AR-2026</span>
-        <span>Classification : public</span>
-        <span>Édition <span id="edition"></span></span>
+    <canvas id="hero-canvas" aria-hidden="true"></canvas>
+    <div class="hero-glow" aria-hidden="true"></div>
+    <div class="hero-content">
+      <p class="hero-hello">Salut, moi c'est</p>
+      <h1>Arthur Roux<span class="dot">.</span></h1>
+      <p class="hero-sub">Étudiant en BTS SIO <span class="sep"></span> <span id="typed">Futur pentester</span><span class="caret" aria-hidden="true"></span></p>
+      <p class="hero-text">À la recherche d'une <strong>alternance de 2 ans</strong> (rythme une semaine sur deux).</p>
+      <div class="hero-btns">
+        <a href="#projets" class="btn">Voir mes projets <span class="btn-arrow" aria-hidden="true">→</span></a>
+        <a href="#contact" class="btn btn-outline">Me contacter</a>
       </div>
-      <div class="hero-body">
-        <div class="hero-content">
-          <p class="kicker">Sujet de l'audit</p>
-          <h1>Arthur Roux</h1>
-          <p class="hero-sub">Étudiant en BTS SIO, <mark><span id="typed">futur pentester.</span></mark><span class="caret" aria-hidden="true"></span></p>
-          <p class="hero-text">À la recherche d'une <strong>alternance de 2 ans</strong>, au rythme d'une semaine sur deux.</p>
-          <div class="hero-btns">
-            <a href="#projets" class="btn">Voir mes projets <span class="btn-arrow" aria-hidden="true">→</span></a>
-            <a href="#contact" class="btn btn-outline">Me contacter <span class="btn-arrow" aria-hidden="true">✉</span></a>
-          </div>
-          <div class="hero-minor">
-            <a href="https://github.com/Arthur-rx99/arthur-rx99.github.io" target="_blank" rel="noopener">Code source du site</a>
-            <a href="cv-arthur-roux.pdf" target="_blank">Télécharger mon CV (PDF)</a>
-          </div>
-        </div>
-        <aside class="hero-side">
-          <p class="stamp" aria-label="Recherche une alternance de 2 ans"><span><small>Recherche</small>Alternance<small>2 ans · 1 sem./2</small></span></p>
-          <dl class="fiche">
-            <div><dt>Formation</dt><dd>BTS SIO · MyDigitalSchool</dd></div>
-            <div><dt>Objectif</dt><dd>Pentester</dd></div>
-            <div><dt>Langues</dt><dd>FR · EN C1 · ES B1</dd></div>
-            <div><dt>Localisation</dt><dd>Courbevoie (92)</dd></div>
-            <div><dt>Antécédents</dt><dd>Hôtellerie 5★, MAF bronze</dd></div>
-          </dl>
-        </aside>
+      <div class="hero-minor">
+        <a href="https://github.com/Arthur-rx99/arthur-rx99.github.io" target="_blank" rel="noopener">&lt;/&gt; Code source du site</a>
+        <a href="cv-arthur-roux.pdf" target="_blank">↓ Télécharger mon CV</a>
       </div>
     </div>
   </section>
@@ -75,7 +58,6 @@
   <!--EN CE MOMENT : grille bento-->
   <section class="section" id="maintenant">
     <div class="container">
-      <p class="kicker reveal">§ 01 · État des lieux</p>
       <h2 class="title reveal">En ce moment</h2>
       <div class="bento">
         <article class="tile tile-now reveal">
@@ -88,11 +70,12 @@ Alternance 2 ans · cybersécurité</pre>
         </article>
         <article class="tile tile-stamp reveal">
           <p class="tile-label">Statut</p>
-          <p class="stamp stamp-sm"><span><small>Disponible</small>Alternance<small>Rythme 1 sem. / 2</small></span></p>
+          <p class="status"><span class="pulse" aria-hidden="true"></span>Disponible pour une alternance</p>
+          <p>2 ans, au rythme d'une semaine école / une semaine entreprise.</p>
           <a href="#contact" class="link">Me proposer un poste →</a>
         </article>
         <article class="tile tile-bar reveal">
-          <p class="tile-label">Antécédent notable</p>
+          <p class="tile-label">Parcours atypique</p>
           <p class="tile-big">Du bar<br>au terminal.</p>
           <p>Fouquet's, Hôtel du Louvre, Dublin : des années d'hôtellerie 5★ et une <strong>médaille de bronze</strong> au concours Meilleur Apprenti de France. Rigueur, procédures, sang-froid en service.</p>
         </article>
@@ -126,8 +109,7 @@ Alternance 2 ans · cybersécurité</pre>
         <span>AR</span>
       </div>
       <div class="reveal">
-        <p class="kicker">§ 02 · Périmètre</p>
-        <h2 class="title">À propos</h2>
+        <h2 class="title">Faisons connaissance <span>:)</span></h2>
         <p>Je m'appelle Arthur, j'ai <strong>23 ans</strong> et je suis étudiant en <strong>BTS SIO</strong> (Services
           Informatiques aux Organisations) à MyDigitalSchool Paris.</p>
         <p>Mon objectif : me spécialiser en <strong>cybersécurité</strong> et devenir <strong>pentester</strong>. En
@@ -140,7 +122,7 @@ Alternance 2 ans · cybersécurité</pre>
       </div>
     </div>
     <div class="container">
-      <p class="kicker constats-kicker reveal">Constats · ce que j'apporte à une équipe</p>
+      <h3 class="sub-title reveal">À votre service ! <span>Ce que j'apporte à une équipe.</span></h3>
       <div class="cards">
         <article class="card reveal">
           <div class="icon">
@@ -204,7 +186,6 @@ Alternance 2 ans · cybersécurité</pre>
     <div class="container">
       <div class="section-head reveal">
         <div>
-          <p class="kicker">§ 03 · Preuves</p>
           <h2 class="title">Projets sélectionnés</h2>
         </div>
         <a href="https://github.com/Arthur-rx99" target="_blank" rel="noopener" class="link">Tous mes dépôts GitHub →</a>
@@ -284,7 +265,6 @@ PORT   STATE SERVICE
   <!--PARCOURS-->
   <section class="section section-alt" id="parcours">
     <div class="container">
-      <p class="kicker reveal">§ 04 · Antécédents</p>
       <h2 class="title reveal">Parcours</h2>
       <p class="lead reveal">De l'hôtellerie de luxe à la cybersécurité.</p>
       <div class="parcours">
@@ -301,8 +281,8 @@ PORT   STATE SERVICE
           <div class="tl-item"><span class="tl-date">2021 – 2022</span><div class="tl-card"><h3>Mention complémentaire Barman</h3><p class="tl-place">Lycée Hôtelier de La Rochelle</p><p>Médaille de bronze au concours Meilleur Apprenti de France.</p></div></div>
           <div class="tl-item"><span class="tl-date">2018 – 2021</span><div class="tl-card"><h3>Bac Pro Commercialisation et services en restauration</h3><p class="tl-place">Lycée Hôtelier de La Rochelle</p><p>Section européenne.</p></div></div>
           <div class="cv-banner">
-            <p>Le dossier complet</p>
-            <a href="cv-arthur-roux.pdf" target="_blank" class="btn btn-stamp">Télécharger mon CV <span class="btn-arrow" aria-hidden="true">↓</span></a>
+            <p>Consultez mon curriculum vitae</p>
+            <a href="cv-arthur-roux.pdf" target="_blank" class="btn">Télécharger mon CV <span class="btn-arrow" aria-hidden="true">↓</span></a>
           </div>
         </div>
       </div>
@@ -312,7 +292,6 @@ PORT   STATE SERVICE
   <!--OUTILS-->
   <section class="section" id="outils">
     <div class="container">
-      <p class="kicker reveal">§ 05 · Matériel utilisé</p>
       <h2 class="title reveal">Mes outils</h2>
       <p class="lead reveal">Ceux que j'ouvre tous les jours, en labo comme en dev.</p>
       <ul class="tools reveal">
@@ -331,7 +310,6 @@ PORT   STATE SERVICE
   <!--APPEL A L'ACTION-->
   <section class="cta-band">
     <div class="container cta-inner reveal">
-      <p class="kicker">Conclusion de l'audit</p>
       <p class="cta-title">Une alternance à proposer ?</p>
       <p class="cta-text">Je réponds vite, en français comme en anglais.</p>
       <a href="#contact" class="btn btn-invert">Me contacter <span class="btn-arrow" aria-hidden="true">→</span></a>
@@ -342,7 +320,6 @@ PORT   STATE SERVICE
   <section class="section" id="contact">
     <div class="container contact">
       <div class="reveal">
-        <p class="kicker">§ 06 · Contact</p>
         <h2 class="title">Contact</h2>
         <p>Une alternance, un projet ou simplement une question ? N'hésitez pas à me contacter.</p>
         <ul class="contact-list">
