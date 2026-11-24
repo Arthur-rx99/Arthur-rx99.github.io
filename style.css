@@ -664,3 +664,77 @@ body { background: var(--bg); }
   .btn, .filter { transition: none; }
   .btn-cmd:hover .cursor { animation: none; opacity: 1; }
 }
+
+/* ----- Atouts : chaque carte est une grosse touche de clavier ----- */
+.cards { gap: 18px; }
+.card {
+  padding: 22px 20px 24px;
+  background: linear-gradient(#18271f, #121e18);
+  border: 1px solid #23372d;
+  border-radius: 12px;
+  box-shadow: 0 7px 0 #050b08, 0 12px 18px rgba(0, 0, 0, 0.3);
+  transition: transform 0.1s ease, box-shadow 0.1s ease, border-color 0.2s;
+}
+.card:hover {
+  transform: translateY(5px);
+  box-shadow: 0 2px 0 #050b08, 0 4px 8px rgba(0, 0, 0, 0.3);
+  border-color: rgba(52, 211, 153, 0.55);
+}
+/* Le raccourci F1 à F5 en haut à droite, comme sur une touche de fonction */
+.cards { counter-reset: touche; }
+.card { counter-increment: touche; }
+.card::after {
+  content: "F" counter(touche);
+  position: absolute;
+  top: 14px; right: 14px;
+  padding: 1px 6px;
+  border: 1px solid #2a4236;
+  border-radius: 4px;
+  font: 500 0.7rem "JetBrains Mono", monospace;
+  color: var(--gris);
+}
+.card:hover::after { color: var(--vert); border-color: rgba(52, 211, 153, 0.55); }
+
+/* ----- Compétences : deux petits claviers, une touche par compétence ----- */
+.skills { gap: 28px; margin-top: 48px; }
+.window {
+  padding: 18px 18px 22px;
+  background: #0b140f;
+  border: 1px solid var(--bordure);
+  border-radius: 14px;
+}
+.window:hover { border-color: var(--bordure); }
+.window-bar { padding: 0 2px 14px; background: none; border: 0; gap: 0; }
+.window-bar i { display: none; }
+.window-bar span { margin: 0; font: 500 0.85rem "JetBrains Mono", monospace; color: var(--gris); }
+.window-bar span::before { content: "// "; color: var(--vert); }
+.window-list { display: flex; flex-wrap: wrap; gap: 14px 10px; padding: 0; }
+.window-list li {
+  padding: 10px 14px 12px;
+  background: linear-gradient(#1b2b23, #15221b);
+  border: 1px solid #23372d;
+  border-radius: 7px;
+  font: 500 0.88rem "JetBrains Mono", monospace;
+  color: var(--titre);
+  box-shadow: 0 4px 0 #050b08;
+  transition: transform 0.08s, box-shadow 0.08s, color 0.15s, border-color 0.15s;
+}
+.window-list li::before { content: none; }
+.window-list li:hover {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 #050b08;
+  color: var(--vert);
+  border-color: rgba(52, 211, 153, 0.55);
+}
+/* La première touche de chaque clavier est « allumée », comme Verr. Maj */
+.window-list li:first-child::after {
+  content: "";
+  display: inline-block;
+  width: 6px; height: 6px;
+  margin-left: 10px;
+  border-radius: 50%;
+  background: var(--vert);
+  box-shadow: 0 0 6px var(--vert);
+  vertical-align: 2px;
+}
+@media (prefers-reduced-motion: reduce) { .card, .window-list li { transition: none; } }
