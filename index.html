@@ -47,6 +47,7 @@
         <a href="#apropos" class="btn">Faisons connaissance<span class="key-legend" aria-hidden="true">↵</span></a>
         <a href="cv-arthur-roux.pdf" class="btn-cmd" target="_blank" aria-label="Voir mon CV"><span class="prompt">$</span> open mon-cv.pdf<span class="cursor" aria-hidden="true"></span></a>
       </div>
+      <p class="hero-astuce">Envie d'explorer autrement ? <a href="#" data-term-ouvrir>Ouvrir le terminal</a> <kbd>Ctrl</kbd>+<kbd>K</kbd></p>
     </div>
   </section>
 
@@ -417,7 +418,21 @@ PORT   STATE SERVICE
     <p>© Arthur Roux | <span id="year"></span></p>
   </footer>
 
+  <!--TERMINAL INTERACTIF-->
+  <button class="term-btn" id="term-ouvrir" aria-controls="term" aria-expanded="false" aria-label="Ouvrir le terminal"><span aria-hidden="true">&gt;_</span></button>
+  <div class="term-fond" id="term" hidden>
+    <div class="term-fenetre" role="dialog" aria-modal="true" aria-label="Terminal interactif">
+      <div class="atouts-bar term-barre"><span class="bar-icon">&gt;_</span><span class="bar-title">arthur@portfolio: ~</span><span class="bar-ctrl"><b aria-hidden="true">–</b><b aria-hidden="true">□</b><button class="term-fermer fermer" aria-label="Fermer le terminal">×</button></span></div>
+      <div class="term-sortie" id="term-sortie" aria-live="polite"></div>
+      <form class="term-form" id="term-form" autocomplete="off">
+        <label for="term-saisie" class="t-prompt">arthur@portfolio:~$</label>
+        <input id="term-saisie" type="text" spellcheck="false" autocapitalize="off" aria-label="Commande">
+      </form>
+    </div>
+  </div>
+
   <script src="script.js"></script>
+  <script src="terminal.js"></script>
 </body>
 
 </html>
