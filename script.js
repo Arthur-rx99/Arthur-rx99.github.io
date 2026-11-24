@@ -278,7 +278,7 @@ formulaire.addEventListener("submit", async (e) => {
   if (restant > 0) {
     const minutes = Math.ceil(restant / 60000), h = Math.floor(minutes / 60), m = minutes % 60;
     statut.className = "form-statut erreur";
-    statut.textContent = `Vous avez déjà envoyé un message aujourd'hui. Réessayez dans ${h ? h + " h " : ""}${m} min.`;
+    statut.textContent = `Vous avez déjà envoyé un message aujourd'hui. Réessayez dans ${[h && h + " h", m && m + " min"].filter(Boolean).join(" ")}.`;
     return;
   }
   const bouton = f.querySelector("button[type=submit]");
