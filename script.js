@@ -155,3 +155,26 @@ document.getElementById("form").addEventListener("submit", (e) => {
 });
 
 document.getElementById("year").textContent = new Date().getFullYear();
+
+// ===== Bandeaux de logos qui défilent de droite à gauche =====
+// On duplique les logos pour que la boucle soit continue (les copies sont masquées aux lecteurs d'écran).
+document.querySelectorAll(".marquee-track").forEach((track) => {
+  const originaux = [...track.children];
+  const marquee = track.parentElement;
+  // Remplir au moins deux fois la largeur visible, puis doubler le tout
+  let tours = 0;
+  while (track.scrollWidth < marquee.offsetWidth * 2 && tours++ < 10) {
+    originaux.forEach((li) => {
+      const copie = li.cloneNode(true);
+      copie.setAttribute("aria-hidden", "true");
+      track.appendChild(copie);
+    });
+  }
+  [...track.children].forEach((li) => {
+    const copie = li.cloneNode(true);
+    copie.setAttribute("aria-hidden", "true");
+    track.appendChild(copie);
+  });
+  // Vitesse constante quel que soit le nombre de logos (~45 px par seconde)
+  track.style.animationDuration = `${track.scrollWidth / 2 / 45}s`;
+});

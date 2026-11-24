@@ -738,3 +738,53 @@ body { background: var(--bg); }
   vertical-align: 2px;
 }
 @media (prefers-reduced-motion: reduce) { .card, .window-list li { transition: none; } }
+
+/* ----- Compétences : bandeaux de logos qui défilent ----- */
+.skills { display: grid; grid-template-columns: 1fr; gap: 36px; margin-top: 64px; }
+.marquee-title { font: 500 0.9rem "JetBrains Mono", monospace; color: var(--gris); margin-bottom: 14px; }
+.marquee-title::before { content: "// "; color: var(--vert); }
+.marquee {
+  overflow: hidden;
+  padding: 6px 0 12px;
+  /* fondu sur les bords */
+  -webkit-mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+  mask-image: linear-gradient(90deg, transparent, #000 8%, #000 92%, transparent);
+}
+.marquee-track {
+  list-style: none;
+  display: flex;
+  gap: 16px;
+  width: max-content;
+  animation: defile 30s linear infinite;
+}
+.marquee:hover .marquee-track { animation-play-state: paused; }
+.marquee-track li {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 20px 12px 14px;
+  background: linear-gradient(#1b2b23, #15221b);
+  border: 1px solid #23372d;
+  border-radius: 10px;
+  box-shadow: 0 5px 0 #050b08;
+  font: 500 0.95rem "JetBrains Mono", monospace;
+  color: var(--titre);
+  white-space: nowrap;
+  transition: transform 0.08s, box-shadow 0.08s, border-color 0.15s;
+}
+.marquee-track li:hover { transform: translateY(5px); box-shadow: 0 0 0 #050b08; border-color: rgba(52, 211, 153, 0.55); }
+.marquee-track img { width: 34px; height: 34px; }
+@keyframes defile { to { transform: translateX(-50%); } }
+
+@media (max-width: 500px) {
+  .marquee-track li { padding: 10px 16px 10px 12px; font-size: 0.85rem; }
+  .marquee-track img { width: 28px; height: 28px; }
+}
+/* Sans animation : les logos s'affichent simplement sur plusieurs lignes */
+@media (prefers-reduced-motion: reduce) {
+  .marquee { -webkit-mask-image: none; mask-image: none; }
+  .marquee-track { animation: none; flex-wrap: wrap; width: auto; }
+  .marquee-track li[aria-hidden="true"] { display: none; }
+}
+.skills { grid-template-columns: minmax(0, 1fr); }
+.marquee-row, .marquee { min-width: 0; max-width: 100%; }
