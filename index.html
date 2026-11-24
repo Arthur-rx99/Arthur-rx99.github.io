@@ -76,60 +76,75 @@
     <div class="container">
       <h2 class="title reveal">À votre service !</h2>
       <p class="subtitle reveal">Ce que j'apporte à une équipe.</p>
-      <div class="cards">
-        <article class="card reveal">
-          <div class="icon">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Z" />
-              <path d="m9 12 2 2 4-4" />
-            </svg>
+      <div class="atouts reveal" id="atouts">
+        <div class="atouts-bar" aria-hidden="true"><i></i><i></i><i></i><span>arthur@portfolio: ~/atouts</span></div>
+        <div class="atouts-inner">
+          <div class="atouts-list" role="tablist" aria-label="Mes atouts">
+          <button class="atout-tab" role="tab" id="tab-cybersecurite" aria-controls="atout-cybersecurite" aria-selected="true" tabindex="0"><span class="num">01</span>Cybersécurité</button>
+          <button class="atout-tab" role="tab" id="tab-automatisation-ia" aria-controls="atout-automatisation-ia" aria-selected="false" tabindex="-1"><span class="num">02</span>Automatisation avec l'IA</button>
+          <button class="atout-tab" role="tab" id="tab-developpement" aria-controls="atout-developpement" aria-selected="false" tabindex="-1"><span class="num">03</span>Développement</button>
+          <button class="atout-tab" role="tab" id="tab-systemes-reseaux" aria-controls="atout-systemes-reseaux" aria-selected="false" tabindex="-1"><span class="num">04</span>Systèmes &amp; réseaux</button>
+          <button class="atout-tab" role="tab" id="tab-savoir-etre" aria-controls="atout-savoir-etre" aria-selected="false" tabindex="-1"><span class="num">05</span>Savoir-être</button>
           </div>
-          <h3>Cybersécurité</h3>
-          <p>Lab de pentest sous VirtualBox, Kali Linux, Nmap, Metasploit et rédaction de rapports.</p>
-        </article>
-        <article class="card reveal">
-          <div class="icon">
-            <svg viewBox="0 0 24 24">
-              <path d="M12 3v2M12 19v2M5 12H3M21 12h-2" />
-              <rect x="6" y="6" width="12" height="12" rx="3" />
-              <path d="M10 10h4v4h-4z" />
-            </svg>
+          <div class="atouts-screen">
+          <article class="atout-panel" role="tabpanel" id="atout-cybersecurite" aria-labelledby="tab-cybersecurite">
+            <p class="atout-cmd"><span class="prompt">arthur@portfolio:~$</span> cat atouts/cybersecurite.txt</p>
+            <div class="atout-out">
+              <div class="atout-icon" aria-hidden="true"><svg viewBox="0 0 24 24"> <path d="M12 2 4 5v6c0 5 3.4 9.7 8 11 4.6-1.3 8-6 8-11V5l-8-3Z" /> <path d="m9 12 2 2 4-4" /> </svg></div>
+              <div>
+                <h3>Cybersécurité</h3>
+                <p>Lab de pentest sous VirtualBox, Kali Linux, Nmap, Metasploit et rédaction de rapports.</p>
+                <ul class="atout-tags"><li>Kali Linux</li><li>Nmap</li><li>Metasploit</li><li>Rapports</li></ul>
+              </div>
+            </div>
+          </article>
+          <article class="atout-panel" role="tabpanel" id="atout-automatisation-ia" aria-labelledby="tab-automatisation-ia" hidden>
+            <p class="atout-cmd"><span class="prompt">arthur@portfolio:~$</span> cat atouts/automatisation-ia.txt</p>
+            <div class="atout-out">
+              <div class="atout-icon" aria-hidden="true"><svg viewBox="0 0 24 24"> <path d="M12 3v2M12 19v2M5 12H3M21 12h-2" /> <rect x="6" y="6" width="12" height="12" rx="3" /> <path d="M10 10h4v4h-4z" /> </svg></div>
+              <div>
+                <h3>Automatisation avec l'IA</h3>
+                <p>Utilisation de l'intelligence artificielle pour automatiser des tâches répétitives et gagner en efficacité.</p>
+                <ul class="atout-tags"><li>IA</li><li>Automatisation</li><li>Efficacité</li></ul>
+              </div>
+            </div>
+          </article>
+          <article class="atout-panel" role="tabpanel" id="atout-developpement" aria-labelledby="tab-developpement" hidden>
+            <p class="atout-cmd"><span class="prompt">arthur@portfolio:~$</span> cat atouts/developpement.txt</p>
+            <div class="atout-out">
+              <div class="atout-icon" aria-hidden="true"><svg viewBox="0 0 24 24"> <path d="m8 6-6 6 6 6" /> <path d="m16 6 6 6-6 6" /> </svg></div>
+              <div>
+                <h3>Développement</h3>
+                <p>Création de sites web et d'applications en HTML, CSS, JavaScript et Python.</p>
+                <ul class="atout-tags"><li>HTML</li><li>CSS</li><li>JavaScript</li><li>Python</li></ul>
+              </div>
+            </div>
+          </article>
+          <article class="atout-panel" role="tabpanel" id="atout-systemes-reseaux" aria-labelledby="tab-systemes-reseaux" hidden>
+            <p class="atout-cmd"><span class="prompt">arthur@portfolio:~$</span> cat atouts/systemes-reseaux.txt</p>
+            <div class="atout-out">
+              <div class="atout-icon" aria-hidden="true"><svg viewBox="0 0 24 24"> <rect x="3" y="4" width="18" height="12" rx="2" /> <path d="M8 20h8M12 16v4" /> </svg></div>
+              <div>
+                <h3>Systèmes &amp; réseaux</h3>
+                <p>Terminal Linux, virtualisation et bases d'administration des systèmes et réseaux.</p>
+                <ul class="atout-tags"><li>Linux</li><li>Virtualisation</li><li>Réseaux</li></ul>
+              </div>
+            </div>
+          </article>
+          <article class="atout-panel" role="tabpanel" id="atout-savoir-etre" aria-labelledby="tab-savoir-etre" hidden>
+            <p class="atout-cmd"><span class="prompt">arthur@portfolio:~$</span> cat atouts/savoir-etre.txt</p>
+            <div class="atout-out">
+              <div class="atout-icon" aria-hidden="true"><svg viewBox="0 0 24 24"> <circle cx="9" cy="8" r="3" /> <circle cx="17" cy="9" r="2.5" /> <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15 14.5c3 0 6 1.8 6 5.5" /> </svg></div>
+              <div>
+                <h3>Savoir-être</h3>
+                <p>Travail d'équipe, créativité, autonomie et organisation, forgés dans l'hôtellerie 5 étoiles.</p>
+                <ul class="atout-tags"><li>Équipe</li><li>Autonomie</li><li>Organisation</li><li>Créativité</li></ul>
+              </div>
+            </div>
+          </article>
           </div>
-          <h3>Automatisation avec l'IA</h3>
-          <p>Utilisation de l'intelligence artificielle pour automatiser des tâches répétitives et gagner en efficacité.
-          </p>
-        </article>
-        <article class="card reveal">
-          <div class="icon">
-            <svg viewBox="0 0 24 24">
-              <path d="m8 6-6 6 6 6" />
-              <path d="m16 6 6 6-6 6" />
-            </svg>
-          </div>
-          <h3>Développement</h3>
-          <p>Création de sites web et d'applications en HTML, CSS, JavaScript et Python.</p>
-        </article>
-        <article class="card reveal">
-          <div class="icon">
-            <svg viewBox="0 0 24 24">
-              <rect x="3" y="4" width="18" height="12" rx="2" />
-              <path d="M8 20h8M12 16v4" />
-            </svg>
-          </div>
-          <h3>Systèmes &amp; réseaux</h3>
-          <p>Terminal Linux, virtualisation et bases d'administration des systèmes et réseaux.</p>
-        </article>
-        <article class="card reveal">
-          <div class="icon">
-            <svg viewBox="0 0 24 24">
-              <circle cx="9" cy="8" r="3" />
-              <circle cx="17" cy="9" r="2.5" />
-              <path d="M3 20c0-3.3 2.7-6 6-6s6 2.7 6 6M15 14.5c3 0 6 1.8 6 5.5" />
-            </svg>
-          </div>
-          <h3>Savoir-être</h3>
-          <p>Travail d'équipe, créativité, autonomie et organisation, forgés dans l'hôtellerie 5 étoiles.</p>
-        </article>
+        </div>
+        <div class="atouts-progress" aria-hidden="true"><span></span></div>
       </div>
 
       <div class="skills">
