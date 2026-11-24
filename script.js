@@ -250,10 +250,37 @@ document.querySelectorAll(".filter").forEach((btn) => {
 const ADRESSE = "arthurroux99@gmail.com";
 const formulaire = document.getElementById("form");
 const statut = document.getElementById("form-statut");
+const UN_JOUR = 24 * 60 * 60 * 1000;
+const CLE_ENVOIS = "portfolio-envois";
+function lireEnvois() {
+  try { return JSON.parse(localStorage.getItem(CLE_ENVOIS)) || {}; } catch { return {}; }
+}
+function attenteRestante(email) {
+  const envois = lireEnvois();
+  const dernier = Math.max(envois.navigateur || 0, envois[email.trim().toLowerCase()] || 0);
+  return Math.max(0, dernier + UN_JOUR - Date.now());
+}
+function noterEnvoi(email) {
+  const envois = lireEnvois();
+  const maintenant = Date.now();
+  // on ne garde que les envois de moins de 24 h
+  for (const k of Object.keys(envois)) if (maintenant - envois[k] > UN_JOUR) delete envois[k];
+  envois.navigateur = maintenant;
+  envois[email.trim().toLowerCase()] = maintenant;
+  try { localStorage.setItem(CLE_ENVOIS, JSON.stringify(envois)); } catch { /* stockage indisponible */ }
+}
 formulaire.addEventListener("submit", async (e) => {
   e.preventDefault();
   const f = e.target;
   if (f._honey.value) return; // robot
+  // Anti-spam : un message par jour et par visiteur (navigateur + adresse e-mail)
+  const restant = attenteRestante(f.email.value);
+  if (restant > 0) {
+    const minutes = Math.ceil(restant / 60000), h = Math.floor(minutes / 60), m = minutes % 60;
+    statut.className = "form-statut erreur";
+    statut.textContent = `Vous avez déjà envoyé un message aujourd'hui. Réessayez dans ${h ? h + " h " : ""}${m} min.`;
+    return;
+  }
   const bouton = f.querySelector("button[type=submit]");
   bouton.disabled = true;
   statut.className = "form-statut";
@@ -269,6 +296,7 @@ formulaire.addEventListener("submit", async (e) => {
     });
     const res = await rep.json().catch(() => ({}));
     if (!rep.ok || String(res.success) !== "true") throw new Error(res.message || "échec");
+    noterEnvoi(f.email.value);
     statut.classList.add("ok");
     statut.textContent = "Message envoyé, merci ! Je vous réponds rapidement.";
     f.reset();
