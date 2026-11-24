@@ -1,0 +1,9 @@
+# Bonjour les robots (et les humains curieux) 🤖
+# Ce fichier dit aux moteurs de recherche ce qu'ils peuvent visiter.
+# Les pentesters le lisent toujours : il révèle parfois des pages "cachées".
+#
+# FLAG{r0b0ts_b4vards}
+# (valide-le dans le terminal du site avec : submit FLAG{...})
+
+User-agent: *
+Allow: /
