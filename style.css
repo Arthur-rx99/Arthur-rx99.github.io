@@ -788,3 +788,5 @@ body { background: var(--bg); }
 }
 .skills { grid-template-columns: minmax(0, 1fr); }
 .marquee-row, .marquee { min-width: 0; max-width: 100%; }
+/* Sécurité & réseau défile dans l'autre sens (de gauche à droite) */
+.marquee-row:nth-child(2) .marquee-track { animation-direction: reverse; }
