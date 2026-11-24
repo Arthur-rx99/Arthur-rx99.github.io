@@ -1,99 +1,200 @@
-// ===== Fond animé du haut de page uniquement =====
-// Des symboles "cyber" en contour flottent doucement, avec un léger effet de profondeur à la souris.
+// ===== Fond interactif du haut de page : un scan réseau =====
+// Chaque point est une machine du réseau. La souris est le scanner : les machines
+// proches s'allument, affichent leur IP et un port ouvert, puis restent « découvertes »
+// quelques secondes. Sans souris (mobile), le scanner se promène tout seul.
 const canvas = document.getElementById("hero-canvas");
 const ctx = canvas.getContext("2d");
 const hero = document.getElementById("accueil");
 const VERT = "52, 211, 153";
-const textes = ["</>", ">_", "{ }", "01", "#!", "$"];
-const formes = ["cadenas", "bouclier", "cle"];
-let symboles = [];
-let souris = { x: 0, y: 0 };
+const PORTS = ["21/tcp ftp", "22/tcp ssh", "80/tcp http", "443/tcp https", "445/tcp smb", "3306/tcp mysql", "8080/tcp http-alt"];
+const PORTEE = 170;     // rayon du scanner en px
+const ETIQUETTE = 115;  // distance sous laquelle l'IP s'affiche
+const calme = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-function creerSymbole() {
-  const estTexte = Math.random() < 0.5;
-  return {
-    x: Math.random() * canvas.width,
-    y: Math.random() * canvas.height,
-    taille: 16 + Math.random() * 22,
-    profondeur: 0.3 + Math.random() * 0.7,       // plus proche = plus visible et plus réactif
-    vy: -(0.08 + Math.random() * 0.22),
-    angle: Math.random() * Math.PI * 2,
-    rotation: (Math.random() - 0.5) * 0.004,
-    texte: estTexte ? textes[Math.floor(Math.random() * textes.length)] : null,
-    forme: estTexte ? null : formes[Math.floor(Math.random() * formes.length)],
-  };
-}
+let hotes = [];
+let echos = [];
+let largeur = 0, hauteur = 0, ratio = 1;
+const scanner = { x: 0, y: 0, cibleX: 0, cibleY: 0, angle: 0 };
+let sourisActive = false;
+let dernierEcho = 0;
 
 function initFond() {
-  canvas.width = hero.offsetWidth;
-  canvas.height = hero.offsetHeight;
-  const nombre = Math.round((canvas.width * canvas.height) / 38000);
-  symboles = Array.from({ length: Math.min(nombre, 40) }, creerSymbole);
-}
+  ratio = Math.min(window.devicePixelRatio || 1, 2);
+  largeur = hero.offsetWidth;
+  hauteur = hero.offsetHeight;
+  canvas.width = largeur * ratio;
+  canvas.height = hauteur * ratio;
+  ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
 
-function dessinerForme(forme, t) {
-  ctx.beginPath();
-  if (forme === "cadenas") {
-    ctx.rect(-t * 0.5, -t * 0.05, t, t * 0.7);
-    ctx.moveTo(-t * 0.3, -t * 0.05);
-    ctx.arc(0, -t * 0.05, t * 0.3, Math.PI, 0);
-  } else if (forme === "bouclier") {
-    ctx.moveTo(0, -t * 0.6);
-    ctx.lineTo(t * 0.5, -t * 0.4);
-    ctx.quadraticCurveTo(t * 0.5, t * 0.3, 0, t * 0.6);
-    ctx.quadraticCurveTo(-t * 0.5, t * 0.3, -t * 0.5, -t * 0.4);
-    ctx.closePath();
-  } else {
-    ctx.arc(-t * 0.3, 0, t * 0.22, 0, Math.PI * 2);
-    ctx.moveTo(-t * 0.08, 0);
-    ctx.lineTo(t * 0.55, 0);
-    ctx.moveTo(t * 0.35, 0);
-    ctx.lineTo(t * 0.35, t * 0.18);
-    ctx.moveTo(t * 0.5, 0);
-    ctx.lineTo(t * 0.5, t * 0.14);
-  }
-  ctx.stroke();
-}
-
-function animerFond() {
-  ctx.clearRect(0, 0, canvas.width, canvas.height);
-
-  for (const s of symboles) {
-    s.y += s.vy * s.profondeur;
-    s.angle += s.rotation;
-    if (s.y < -50) { Object.assign(s, creerSymbole(), { y: canvas.height + 40 }); }
-
-    const decalX = souris.x * 25 * s.profondeur;
-    const decalY = souris.y * 25 * s.profondeur;
-
-    ctx.save();
-    ctx.translate(s.x + decalX, s.y + decalY);
-    ctx.rotate(s.angle);
-    const alpha = 0.08 + s.profondeur * 0.22;
-    ctx.strokeStyle = ctx.fillStyle = `rgba(${VERT}, ${alpha})`;
-    ctx.lineWidth = 1.4;
-    if (s.texte) {
-      ctx.font = `600 ${s.taille}px "JetBrains Mono", monospace`;
-      ctx.textAlign = "center";
-      ctx.textBaseline = "middle";
-      ctx.fillText(s.texte, 0, 0);
-    } else {
-      dessinerForme(s.forme, s.taille * 1.3);
+  // Une grille légèrement désordonnée : on dirait une carte réseau, pas un quadrillage
+  const pas = largeur < 600 ? 70 : 88;
+  hotes = [];
+  let n = 2;
+  for (let y = pas / 2; y < hauteur; y += pas) {
+    for (let x = pas / 2; x < largeur; x += pas) {
+      if (Math.random() < 0.18) continue; // quelques trous
+      hotes.push({
+        x: x + (Math.random() - 0.5) * pas * 0.6,
+        y: y + (Math.random() - 0.5) * pas * 0.6,
+        ip: `192.168.56.${n++ % 254 || 1}`,
+        port: PORTS[Math.floor(Math.random() * PORTS.length)],
+        vu: 0, // 1 = vient d'être scanné, redescend doucement à 0
+      });
     }
-    ctx.restore();
   }
-
-  requestAnimationFrame(animerFond);
+  scanner.x = scanner.cibleX = largeur * 0.7;
+  scanner.y = scanner.cibleY = hauteur * 0.45;
 }
 
-hero.addEventListener("mousemove", (e) => {
+function dessinerFond(t) {
+  ctx.clearRect(0, 0, largeur, hauteur);
+
+  // Sans souris, le scanner suit une boucle lente
+  if (!sourisActive) {
+    scanner.cibleX = largeur * (0.62 + 0.25 * Math.sin(t / 5200));
+    scanner.cibleY = hauteur * (0.48 + 0.3 * Math.sin(t / 3700));
+  }
+  scanner.x += (scanner.cibleX - scanner.x) * 0.08;
+  scanner.y += (scanner.cibleY - scanner.y) * 0.08;
+  scanner.angle = (t / 900) % (Math.PI * 2);
+
+  // Balayage radar (secteur qui tourne)
+  ctx.save();
+  ctx.translate(scanner.x, scanner.y);
+  ctx.rotate(scanner.angle);
+  const balayage = ctx.createLinearGradient(0, 0, PORTEE, 0);
+  balayage.addColorStop(0, `rgba(${VERT}, 0.16)`);
+  balayage.addColorStop(1, `rgba(${VERT}, 0)`);
+  ctx.fillStyle = balayage;
+  ctx.beginPath();
+  ctx.moveTo(0, 0);
+  ctx.arc(0, 0, PORTEE, -0.45, 0);
+  ctx.closePath();
+  ctx.fill();
+  ctx.restore();
+
+  // Cercle de portée en pointillés
+  ctx.setLineDash([3, 6]);
+  ctx.strokeStyle = `rgba(${VERT}, 0.22)`;
+  ctx.lineWidth = 1;
+  ctx.beginPath();
+  ctx.arc(scanner.x, scanner.y, PORTEE, 0, Math.PI * 2);
+  ctx.stroke();
+  ctx.setLineDash([]);
+
+  // Machines
+  ctx.font = '500 11px "JetBrains Mono", monospace';
+  ctx.textBaseline = "middle";
+  for (const h of hotes) {
+    const d = Math.hypot(h.x - scanner.x, h.y - scanner.y);
+    if (d < PORTEE) {
+      h.vu = 1;
+      // liaison scanner → machine
+      ctx.strokeStyle = `rgba(${VERT}, ${0.35 * (1 - d / PORTEE)})`;
+      ctx.beginPath();
+      ctx.moveTo(scanner.x, scanner.y);
+      ctx.lineTo(h.x, h.y);
+      ctx.stroke();
+    } else {
+      h.vu = Math.max(0, h.vu - 0.006);
+    }
+
+    const a = 0.16 + h.vu * 0.7;
+    ctx.fillStyle = `rgba(${VERT}, ${a})`;
+    ctx.beginPath();
+    ctx.arc(h.x, h.y, 1.6 + h.vu * 1.6, 0, Math.PI * 2);
+    ctx.fill();
+
+    if (h.vu > 0.4) { // petit carré autour des machines découvertes
+      ctx.strokeStyle = `rgba(${VERT}, ${(h.vu - 0.4) * 0.8})`;
+      ctx.strokeRect(h.x - 6, h.y - 6, 12, 12);
+    }
+    if (d < ETIQUETTE) {
+      const alpha = 1 - d / ETIQUETTE;
+      ctx.fillStyle = `rgba(240, 247, 243, ${0.85 * alpha})`;
+      ctx.fillText(h.ip, h.x + 11, h.y - 6);
+      ctx.fillStyle = `rgba(${VERT}, ${0.9 * alpha})`;
+      ctx.fillText(`${h.port} open`, h.x + 11, h.y + 8);
+    }
+  }
+
+  // Un « ping » part de temps en temps d'une machine au hasard
+  if (t - dernierEcho > 900 && hotes.length) {
+    dernierEcho = t;
+    const h = hotes[Math.floor(Math.random() * hotes.length)];
+    echos.push({ x: h.x, y: h.y, r: 0 });
+  }
+  echos = echos.filter((e) => e.r < 60);
+  for (const e of echos) {
+    e.r += 0.8;
+    ctx.strokeStyle = `rgba(${VERT}, ${0.4 * (1 - e.r / 60)})`;
+    ctx.beginPath();
+    ctx.arc(e.x, e.y, e.r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  // Le scanner lui-même : une petite croix de visée
+  ctx.strokeStyle = `rgba(${VERT}, 0.8)`;
+  ctx.beginPath();
+  ctx.moveTo(scanner.x - 8, scanner.y); ctx.lineTo(scanner.x - 3, scanner.y);
+  ctx.moveTo(scanner.x + 3, scanner.y); ctx.lineTo(scanner.x + 8, scanner.y);
+  ctx.moveTo(scanner.x, scanner.y - 8); ctx.lineTo(scanner.x, scanner.y - 3);
+  ctx.moveTo(scanner.x, scanner.y + 3); ctx.lineTo(scanner.x, scanner.y + 8);
+  ctx.stroke();
+
+  if (!calme) requestAnimationFrame(dessinerFond);
+}
+
+hero.addEventListener("pointermove", (e) => {
+  if (e.pointerType !== "mouse") return;
   const r = hero.getBoundingClientRect();
-  souris.x = (e.clientX - r.left) / r.width - 0.5;
-  souris.y = (e.clientY - r.top) / r.height - 0.5;
+  scanner.cibleX = e.clientX - r.left;
+  scanner.cibleY = e.clientY - r.top;
+  sourisActive = true;
 });
+hero.addEventListener("pointerleave", () => { sourisActive = false; });
 window.addEventListener("resize", initFond);
 initFond();
-animerFond();
+requestAnimationFrame(dessinerFond);
+
+// ===== Atouts : un petit terminal à onglets =====
+const atouts = document.getElementById("atouts");
+if (atouts) {
+  const onglets = [...atouts.querySelectorAll(".atout-tab")];
+  const barre = atouts.querySelector(".atouts-progress span");
+  let actif = 0, minuteur = null, auto = !calme;
+  const DUREE = 6000;
+
+  function afficher(i, focus = false) {
+    actif = (i + onglets.length) % onglets.length;
+    onglets.forEach((o, n) => {
+      const choisi = n === actif;
+      o.setAttribute("aria-selected", choisi);
+      o.tabIndex = choisi ? 0 : -1;
+      document.getElementById(o.getAttribute("aria-controls")).hidden = !choisi;
+    });
+    if (focus) onglets[actif].focus();
+    // relance l'animation de la commande tapée
+    const cmd = document.querySelector(`#${onglets[actif].getAttribute("aria-controls")} .atout-cmd`);
+    cmd.classList.remove("tape"); void cmd.offsetWidth; cmd.classList.add("tape");
+    relancer();
+  }
+  function relancer() {
+    clearTimeout(minuteur);
+    barre.style.transition = "none"; barre.style.transform = "scaleX(0)";
+    if (!auto) return;
+    void barre.offsetWidth;
+    barre.style.transition = `transform ${DUREE}ms linear`; barre.style.transform = "scaleX(1)";
+    minuteur = setTimeout(() => afficher(actif + 1), DUREE);
+  }
+  onglets.forEach((o, n) => o.addEventListener("click", () => { auto = false; afficher(n); }));
+  atouts.querySelector(".atouts-list").addEventListener("keydown", (e) => {
+    const sens = { ArrowDown: 1, ArrowRight: 1, ArrowUp: -1, ArrowLeft: -1 }[e.key];
+    if (sens) { e.preventDefault(); auto = false; afficher(actif + sens, true); }
+  });
+  // Défilement automatique seulement quand le bloc est visible
+  new IntersectionObserver(([e]) => { if (e.isIntersecting) relancer(); else clearTimeout(minuteur); }, { threshold: 0.4 }).observe(atouts);
+}
 
 // ===== Navigation : fond au scroll, menu mobile, lien actif =====
 const nav = document.getElementById("nav");
@@ -155,3 +256,26 @@ document.getElementById("form").addEventListener("submit", (e) => {
 });
 
 document.getElementById("year").textContent = new Date().getFullYear();
+
+// ===== Bandeaux de logos qui défilent de droite à gauche =====
+// On duplique les logos pour que la boucle soit continue (les copies sont masquées aux lecteurs d'écran).
+document.querySelectorAll(".marquee-track").forEach((track) => {
+  const originaux = [...track.children];
+  const marquee = track.parentElement;
+  // Remplir au moins deux fois la largeur visible, puis doubler le tout
+  let tours = 0;
+  while (track.scrollWidth < marquee.offsetWidth * 2 && tours++ < 10) {
+    originaux.forEach((li) => {
+      const copie = li.cloneNode(true);
+      copie.setAttribute("aria-hidden", "true");
+      track.appendChild(copie);
+    });
+  }
+  [...track.children].forEach((li) => {
+    const copie = li.cloneNode(true);
+    copie.setAttribute("aria-hidden", "true");
+    track.appendChild(copie);
+  });
+  // Vitesse constante quel que soit le nombre de logos (~45 px par seconde)
+  track.style.animationDuration = `${track.scrollWidth / 2 / 45}s`;
+});
