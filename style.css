@@ -492,224 +492,175 @@ h1, h2, h3 { color: var(--titre); }
 }
 
 /* =========================================================
-   NOUVELLE STRUCTURE (inspirée de jarod.info), dans la DA d'origine
+   RETOUCHES : un rendu plus « fait main »
+   - moins de lueurs et de dégradés, tout n'est plus centré
+   - titres en casse normale, sous-titres façon commentaire de code
+   - boutons originaux : touche de clavier + ligne de commande
    ========================================================= */
+:root { --rayon: 8px; --touche: #0b7a57; }
 
-/* Barre de progression de lecture */
-.progress {
-  position: fixed;
-  inset: 0 0 auto 0;
-  height: 3px;
-  z-index: 200;
-  background: linear-gradient(90deg, var(--vert-fonce), #6ee7b7);
-  box-shadow: 0 0 10px rgba(52, 211, 153, 0.6);
-  transform: scaleX(0);
-  transform-origin: left;
+body { background: var(--bg); }
+
+/* ----- Boutons « touche de clavier » : on appuie vraiment dessus ----- */
+.btn {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 14px;
+  padding: 12px 16px 12px 20px;
+  margin-bottom: 6px; /* place pour l'épaisseur de la touche */
+  background: var(--vert);
+  color: #06120c;
+  border: 0;
+  border-radius: 8px;
+  font: 600 0.95rem "JetBrains Mono", monospace;
+  letter-spacing: 0;
+  text-transform: none;
+  box-shadow: 0 6px 0 var(--touche), 0 10px 14px rgba(0, 0, 0, 0.35);
+  transition: transform 0.08s ease, box-shadow 0.08s ease, background 0.2s;
 }
+.btn:hover {
+  background: #4ee0a8;
+  border-color: transparent;
+  transform: translateY(2px);
+  box-shadow: 0 4px 0 var(--touche), 0 6px 10px rgba(0, 0, 0, 0.35);
+}
+.btn:active { transform: translateY(6px); box-shadow: 0 0 0 var(--touche), 0 2px 4px rgba(0, 0, 0, 0.35); }
+.btn:focus-visible { outline: 2px solid var(--titre); outline-offset: 4px; }
+.key-legend {
+  padding: 2px 6px;
+  border: 1px solid rgba(6, 18, 12, 0.35);
+  border-radius: 4px;
+  font: 500 0.7rem "JetBrains Mono", monospace;
+  opacity: 0.7;
+}
+.form .btn { justify-content: space-between; }
 
-/* Navigation : bouton Ctrl+K */
-.nav-tools { display: flex; align-items: center; gap: 12px; }
-kbd {
-  display: inline-block;
-  min-width: 1.6em;
-  padding: 1px 6px;
+/* ----- Bouton « ligne de commande » : le curseur apparaît au survol ----- */
+.btn-cmd {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 6px;
+  font: 500 0.95rem "JetBrains Mono", monospace;
+  color: var(--texte);
+  border-bottom: 1px dashed var(--bordure);
+  transition: color 0.2s, border-color 0.2s;
+}
+.btn-cmd .prompt { color: var(--vert); }
+.btn-cmd .cursor { width: 9px; height: 1.1em; background: var(--vert); opacity: 0; }
+.btn-cmd:hover { color: var(--titre); border-bottom-color: var(--vert); }
+.btn-cmd:hover .cursor { animation: clignote 1s steps(1) infinite; }
+.btn-cmd:focus-visible { outline: 2px solid var(--vert); outline-offset: 4px; }
+@keyframes clignote { 0%, 49% { opacity: 1; } 50%, 100% { opacity: 0; } }
+
+/* ----- Filtres : petites touches qui restent enfoncées ----- */
+.filters { justify-content: flex-start; gap: 12px; }
+.filter {
+  padding: 7px 14px;
+  margin-bottom: 4px;
+  background: #13201a;
   border: 1px solid var(--bordure);
   border-radius: 6px;
-  background: rgba(52, 211, 153, 0.06);
-  font: 400 0.72rem/1.5 "JetBrains Mono", monospace;
+  font: 500 0.85rem "JetBrains Mono", monospace;
   color: var(--texte);
-  text-align: center;
+  box-shadow: 0 4px 0 #050b08;
+  transition: transform 0.08s, box-shadow 0.08s, color 0.2s;
 }
-.kbd-btn { display: flex; gap: 4px; padding: 5px 8px; background: none; border: 1px solid var(--bordure); border-radius: 30px; cursor: pointer; transition: 0.3s; }
-.kbd-btn:hover { border-color: var(--vert); }
-.menu a i { display: none; }
+.filter:hover { color: var(--vert); border-color: var(--bordure); transform: translateY(1px); box-shadow: 0 3px 0 #050b08; }
+.filter.active { background: #13201a; color: var(--vert); border-color: var(--vert); transform: translateY(4px); box-shadow: 0 0 0 #050b08; }
 
-/* Boutons : petite flèche qui avance au survol */
-.btn { display: inline-flex; align-items: center; gap: 10px; }
-.btn-arrow { transition: transform 0.3s; }
-.btn:hover .btn-arrow { transform: translateX(4px); }
+/* ----- Liens de projets : la flèche avance ----- */
+.link { transition: color 0.2s, letter-spacing 0.2s; }
+.link:hover { letter-spacing: 0.3px; }
 
-/* Hero */
-.hero-hello { font: 500 1rem "JetBrains Mono", monospace; color: var(--gris); margin-bottom: 6px; }
-.hero h1 .dot { color: var(--vert); }
-#typed { color: var(--titre); }
-.caret {
-  display: inline-block;
-  width: 2px; height: 1em;
-  margin-left: 4px;
-  background: var(--vert);
-  vertical-align: -0.15em;
-  animation: clignote 1s steps(1) infinite;
-}
-@keyframes clignote { 50% { opacity: 0; } }
-.hero-minor { display: flex; justify-content: center; flex-wrap: wrap; gap: 10px; margin-top: 18px; }
-.hero-minor a {
-  padding: 6px 14px;
-  border: 1px solid var(--bordure);
-  border-radius: 30px;
-  font: 0.8rem "JetBrains Mono", monospace;
-  color: var(--gris);
-  transition: 0.3s;
-}
-.hero-minor a:hover { color: var(--vert); border-color: var(--vert); }
-
-/* Titres de section alignés à gauche + lien à droite */
-.lead { color: var(--gris); margin: -4px 0 44px; font-size: 1.05rem; }
-.section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 36px; }
-.section-head .title { margin-bottom: 0; }
-.section-head .link { margin: 0 0 6px; }
-.sub-title { margin: 80px 0 24px; font-size: 1.3rem; }
-.sub-title span { display: block; font-weight: 400; font-size: 0.95rem; color: var(--gris); margin-top: 4px; }
-.filters { justify-content: flex-start; }
-
-/* En ce moment : grille bento */
-.bento {
-  display: grid;
-  grid-template-columns: 1.3fr 1fr 1fr;
-  grid-template-areas: "now stamp off" "now lang off" "bar bar bar";
-  gap: 18px;
-}
-.tile {
-  background: var(--carte);
-  border: 1px solid var(--bordure);
-  border-radius: var(--rayon);
-  padding: 26px;
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-  transition: 0.3s;
-}
-.tile:hover { border-color: rgba(52, 211, 153, 0.45); box-shadow: 0 18px 40px rgba(0, 0, 0, 0.35); }
-.tile p { font-size: 0.95rem; }
-.tile-label { font: 600 0.75rem "JetBrains Mono", monospace !important; letter-spacing: 1px; text-transform: uppercase; color: var(--vert); }
-.tile-now { grid-area: now; }
-.tile-stamp { grid-area: stamp; }
-.tile-lang { grid-area: lang; }
-.tile-off { grid-area: off; }
-.tile-lead { font-size: 1.02rem !important; }
-.tile-lead strong, .tile-bar strong { color: var(--vert); font-weight: 600; }
-.tile-term {
-  margin-top: auto;
-  padding: 16px 18px;
-  background: #07100c;
-  border: 1px solid var(--bordure);
-  border-radius: 10px;
+/* ----- Hero : aligné à gauche, sans halo ----- */
+.hero { text-align: left; place-items: center start; }
+.hero-glow { display: none; }
+#hero-canvas { opacity: 0.55; }
+.hero-content { width: min(1100px, 100% - 32px); margin: 0 auto; padding: 0; }
+.hero h1 { font-size: clamp(3rem, 10vw, 6.5rem); letter-spacing: 0; }
+.hero-sub {
+  font-size: clamp(1.15rem, 2.6vw, 1.5rem);
+  font-weight: 500;
+  letter-spacing: 0;
+  text-transform: none;
   color: var(--vert);
-  font: 0.82rem/1.7 "JetBrains Mono", monospace;
-  white-space: pre-wrap;
+  margin: 14px 0 10px;
 }
-.status { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--titre); font-size: 1.05rem !important; }
-.pulse { position: relative; width: 10px; height: 10px; border-radius: 50%; background: var(--vert); flex: none; }
-.pulse::after { content: ""; position: absolute; inset: 0; border-radius: 50%; background: var(--vert); animation: pulse 1.8s ease-out infinite; }
-@keyframes pulse { to { transform: scale(3); opacity: 0; } }
-.tile-stamp .link { margin-top: auto; }
-.tile-bar {
-  grid-area: bar;
-  display: grid;
-  grid-template-columns: auto 1fr;
-  align-items: end;
-  column-gap: 48px;
-  background: radial-gradient(ellipse at top left, rgba(52, 211, 153, 0.16), transparent 60%), var(--carte);
-}
-.tile-bar .tile-label { grid-column: 1 / -1; }
-.tile-bar p:last-child { max-width: 40em; color: var(--texte); }
-.tile-big { font: 700 2.4rem/1.05 "Playfair Display", serif !important; color: var(--titre); }
-.meter { list-style: none; display: grid; gap: 12px; }
-.meter li { display: grid; grid-template-columns: 74px 1fr 46px; align-items: center; gap: 10px; font-size: 0.9rem; color: var(--titre); }
-.meter i { height: 6px; border-radius: 6px; background: rgba(52, 211, 153, 0.12); position: relative; overflow: hidden; }
-.meter i::after { content: ""; position: absolute; inset: 0 auto 0 0; width: var(--v); background: var(--vert); border-radius: 6px; }
-.meter em { font: normal 0.75rem "JetBrains Mono", monospace; color: var(--gris); text-align: right; }
-.off-list { list-style: none; display: grid; gap: 8px; }
-.off-list li { color: var(--titre); font-size: 0.95rem; font-weight: 500; }
-.off-list li::before { content: "▹ "; color: var(--vert); }
-.off-list em { font: normal 0.75rem "JetBrains Mono", monospace; color: var(--gris); margin-left: 6px; }
+.hero-text { max-width: 34em; }
+.hero-btns { justify-content: flex-start; align-items: center; gap: 22px; }
 
-/* Parcours en deux colonnes (remplace la frise centrée) */
-.parcours { display: grid; grid-template-columns: 1fr 1fr; gap: 48px; align-items: start; }
-.journal-title { font: 700 1.4rem "Playfair Display", serif; margin-bottom: 18px; padding-bottom: 12px; border-bottom: 1px solid var(--bordure); }
-.journal .tl-item,
-.journal .tl-item:nth-child(odd),
-.journal .tl-item:nth-child(even) {
-  width: auto;
-  margin: 0;
-  padding: 0 0 22px 28px;
+/* ----- Titres : casse normale, alignés à gauche, sans trait décoratif ----- */
+.title { text-transform: none; letter-spacing: 0; font-size: clamp(2rem, 4.4vw, 3rem); }
+.title::after, .title.center::after { display: none; }
+.title.center { text-align: left; }
+.subtitle {
   text-align: left;
-  border-left: 2px solid rgba(52, 211, 153, 0.35);
+  font: 400 0.95rem "JetBrains Mono", monospace;
+  color: var(--gris);
+  margin-bottom: 44px;
 }
-.journal .tl-item::before,
-.journal .tl-item:nth-child(even)::before { left: 0; right: auto; top: 12px; transform: translate(-50%, -50%); width: 14px; height: 14px; }
-.journal .tl-item:last-of-type { padding-bottom: 0; }
-.journal .cv-banner { margin-top: 36px; padding: 32px 24px; }
-.journal .cv-banner p { font-size: 1.3rem; }
+.subtitle::before { content: "// "; color: var(--vert); }
 
-/* Mes outils */
-.tools { list-style: none; display: grid; grid-template-columns: repeat(4, 1fr); gap: 16px; }
-.tools li {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 6px;
-  padding: 26px 16px;
-  text-align: center;
-  background: var(--carte);
+/* ----- À propos : photo carrée, sans halo ----- */
+.avatar {
+  border-radius: 12px;
   border: 1px solid var(--bordure);
-  border-radius: var(--rayon);
-  transition: 0.3s;
+  background: #10231a;
+  box-shadow: 12px 12px 0 var(--vert-doux);
 }
-.tools li:hover { border-color: var(--vert); transform: translateY(-4px); }
-.tools b { font-weight: 600; color: var(--titre); }
-.tools code { font: 0.75rem "JetBrains Mono", monospace; color: var(--gris); }
-.tools code::before { content: "$ "; color: var(--vert); }
 
-/* Bandeau d'appel à l'action */
-.cta-band { padding: 0 0 100px; }
-.cta-inner {
-  text-align: center;
-  padding: 56px 24px;
+/* ----- Atouts : cartes sobres, alignées à gauche ----- */
+.card { text-align: left; padding: 26px 22px; }
+.card::before { display: none; }
+.card:hover { transform: none; box-shadow: none; border-color: rgba(52, 211, 153, 0.45); }
+.icon { width: auto; height: auto; margin: 0 0 16px; border: 0; background: none; border-radius: 0; display: block; }
+.icon svg { width: 30px; height: 30px; }
+.card:hover .icon { background: none; box-shadow: none; }
+.card:hover .icon svg { stroke: var(--vert); }
+
+/* ----- Projets : survol discret ----- */
+.project:hover { transform: none; box-shadow: none; border-color: rgba(52, 211, 153, 0.5); }
+.project:hover .project-visual img { transform: none; }
+.tags span { border-radius: 4px; }
+
+/* ----- Parcours : sans effets lumineux ----- */
+.timeline::before { background: rgba(52, 211, 153, 0.35); }
+.tl-item::before { box-shadow: none; }
+.tl-date { border-radius: 4px; }
+.tl-card:hover { box-shadow: none; border-color: rgba(52, 211, 153, 0.45); }
+.tl-start { box-shadow: none; border-radius: 8px; }
+.tl-start-icon { border-radius: 6px; }
+.tl-start em { border-radius: 4px; }
+.cv-banner { background: none; border: 1px dashed var(--bordure); text-align: left; display: flex; justify-content: space-between; align-items: center; gap: 20px; flex-wrap: wrap; }
+.cv-banner p { margin: 0; }
+
+/* ----- Loisirs : une simple liste, sans emojis ----- */
+.hobbies { list-style: none; justify-content: flex-start; gap: 10px 12px; margin-top: 0; }
+.hobbies li {
+  padding: 10px 16px;
   border: 1px solid var(--bordure);
-  border-radius: var(--rayon);
-  background: radial-gradient(ellipse at top, rgba(52, 211, 153, 0.18), transparent 70%), var(--carte);
+  border-radius: 6px;
+  font-weight: 600;
+  color: var(--titre);
 }
-.cta-title { font: 700 clamp(1.9rem, 5vw, 2.8rem)/1.15 "Playfair Display", serif; color: var(--titre); margin-bottom: 12px; }
-.cta-text { color: var(--gris); margin-bottom: 28px; }
+.hobbies li span { font: 400 0.8rem "JetBrains Mono", monospace; color: var(--gris); margin-left: 6px; }
 
-/* Pied de page */
-.footer-inner { display: flex; justify-content: space-between; align-items: center; gap: 16px; flex-wrap: wrap; }
-.footer-links { display: flex; gap: 20px; }
-.footer-links a:hover { color: var(--vert); }
-.footer kbd { font-size: 0.65rem; }
+/* ----- Formulaire et apparition ----- */
+.form input, .form textarea { border-radius: 6px; }
+.form input:focus, .form textarea:focus { box-shadow: none; }
+.reveal { transform: translateY(12px); transition: 0.5s ease; }
 
-/* Palette de commandes (Ctrl+K) */
-.palette { position: fixed; inset: 0; z-index: 300; display: grid; place-items: start center; padding: 14vh 16px 16px; background: rgba(5, 10, 8, 0.7); backdrop-filter: blur(4px); }
-.palette[hidden] { display: none; }
-.palette-box { width: min(560px, 100%); background: #0d1612; border: 1px solid var(--bordure); border-radius: var(--rayon); box-shadow: var(--ombre); overflow: hidden; }
-.palette-input { display: flex; align-items: center; gap: 10px; padding: 16px 18px; border-bottom: 1px solid var(--bordure); font: 600 1rem "JetBrains Mono", monospace; color: var(--vert); }
-.palette-input input { flex: 1; border: 0; background: none; font: 1rem "JetBrains Mono", monospace; color: var(--titre); outline: none; }
-#palette-list { list-style: none; max-height: 50vh; overflow: auto; padding: 8px; }
-#palette-list li { display: flex; justify-content: space-between; padding: 10px 12px; border-radius: 10px; cursor: pointer; color: var(--texte); }
-#palette-list li em { font: normal 0.75rem "JetBrains Mono", monospace; color: var(--gris); }
-#palette-list li[aria-selected="true"] { background: var(--vert-doux); color: var(--vert); }
-#palette-list li.vide { color: var(--gris); cursor: default; }
-.palette-hint { padding: 10px 18px; border-top: 1px solid var(--bordure); font: 0.72rem "JetBrains Mono", monospace; color: var(--gris); }
-
-/* Responsive de la nouvelle structure */
-@media (max-width: 960px) {
-  .bento { grid-template-columns: 1fr 1fr; grid-template-areas: "now now" "stamp off" "lang off" "bar bar"; }
-  .parcours { grid-template-columns: 1fr; gap: 48px; }
-  .tools { grid-template-columns: repeat(2, 1fr); }
-}
-@media (max-width: 768px) {
-  .bento { grid-template-columns: minmax(0, 1fr); grid-template-areas: "now" "stamp" "bar" "lang" "off"; }
-  .tile-bar { grid-template-columns: 1fr; row-gap: 14px; }
-  .section-head { flex-direction: column; align-items: flex-start; }
-  .kbd-btn { display: none; }
-  .footer-inner { flex-direction: column; text-align: center; }
-  .about .title, .about .sub-title { text-align: center; }
+@media (max-width: 900px) {
+  .about { text-align: left; }
+  .about .avatar { margin: 0; }
+  .infos li { justify-content: flex-start; }
 }
 @media (max-width: 500px) {
-  .tools { grid-template-columns: 1fr 1fr; }
-  .tile-big { font-size: 2rem !important; }
+  .hero-btns { flex-direction: column; align-items: flex-start; }
 }
 @media (prefers-reduced-motion: reduce) {
-  .caret, .pulse::after { animation: none; }
+  .btn, .filter { transition: none; }
+  .btn-cmd:hover .cursor { animation: none; opacity: 1; }
 }
