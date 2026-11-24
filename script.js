@@ -285,8 +285,14 @@ formulaire.addEventListener("submit", async (e) => {
   bouton.disabled = true;
   statut.className = "form-statut";
   statut.textContent = "$ envoi en cours…";
+  let delai, patience;
   try {
+    // Délai maximum : au-delà de 20 s, on propose le plan B plutôt que de laisser attendre
+    const ctrl = new AbortController();
+    delai = setTimeout(() => ctrl.abort(), 20000);
+    patience = setTimeout(() => { statut.textContent = "$ envoi en cours… cela peut prendre quelques secondes"; }, 4000);
     const rep = await fetch(`https://formsubmit.co/ajax/${ADRESSE}`, {
+      signal: ctrl.signal,
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
@@ -294,7 +300,14 @@ formulaire.addEventListener("submit", async (e) => {
         _subject: "Contact portfolio - " + f.nom.value, _replyto: f.email.value, _template: "table",
       }),
     });
+    clearTimeout(patience);
     const res = await rep.json().catch(() => ({}));
+    if (/activat/i.test(res.message || "")) {
+      // Formulaire pas encore activé par le propriétaire (premier envoi)
+      statut.classList.add("erreur");
+      statut.innerHTML = `Le formulaire est en cours d'activation. En attendant, <a href="mailto:${ADRESSE}">écrivez-moi directement par mail</a>.`;
+      return;
+    }
     if (!rep.ok || String(res.success) !== "true") throw new Error(res.message || "échec");
     noterEnvoi(f.email.value);
     statut.classList.add("ok");
@@ -307,6 +320,7 @@ formulaire.addEventListener("submit", async (e) => {
     const corps = encodeURIComponent(f.message.value + "\n\n" + f.nom.value + " (" + f.email.value + ")");
     statut.innerHTML = `L'envoi n'a pas marché. <a href="mailto:${ADRESSE}?subject=${sujet}&body=${corps}">Écrivez-moi directement par mail</a>.`;
   } finally {
+    clearTimeout(delai); clearTimeout(patience);
     bouton.disabled = false;
   }
 });
