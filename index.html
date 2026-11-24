@@ -16,21 +16,26 @@
 </head>
 
 <body>
+  <div class="progress" id="progress" aria-hidden="true"></div>
 
   <!--NAVIGATION-->
   <header class="nav" id="nav">
     <a href="#accueil" class="logo" aria-label="Accueil">AR<span>.</span></a>
-    <button class="burger" id="burger" aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
     <nav class="menu" id="menu">
-      <a href="#apropos"><i>01</i>À propos</a>
-      <a href="#competences"><i>02</i>Compétences</a>
+      <a href="#maintenant"><i>01</i>En ce moment</a>
+      <a href="#apropos"><i>02</i>À propos</a>
       <a href="#projets"><i>03</i>Projets</a>
       <a href="#parcours"><i>04</i>Parcours</a>
-      <a href="#contact"><i>05</i>Contact</a>
+      <a href="#outils"><i>05</i>Outils</a>
+      <a href="#contact"><i>06</i>Contact</a>
     </nav>
+    <div class="nav-tools">
+      <button class="kbd-btn" id="open-palette" aria-label="Ouvrir la recherche rapide"><kbd>Ctrl</kbd><kbd>K</kbd></button>
+      <button class="burger" id="burger" aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
+    </div>
   </header>
 
-  <!--HERO-->
+  <!--HERO : page de garde du rapport-->
   <section class="hero" id="accueil">
     <div class="container hero-inner">
       <div class="hero-meta" aria-hidden="true">
@@ -42,11 +47,15 @@
         <div class="hero-content">
           <p class="kicker">Sujet de l'audit</p>
           <h1>Arthur Roux</h1>
-          <p class="hero-sub">Étudiant en BTS SIO, <mark>futur pentester.</mark></p>
+          <p class="hero-sub">Étudiant en BTS SIO, <mark><span id="typed">futur pentester.</span></mark><span class="caret" aria-hidden="true"></span></p>
           <p class="hero-text">À la recherche d'une <strong>alternance de 2 ans</strong>, au rythme d'une semaine sur deux.</p>
           <div class="hero-btns">
-            <a href="#apropos" class="btn">Faisons connaissance <span class="btn-arrow" aria-hidden="true">→</span></a>
-            <a href="cv-arthur-roux.pdf" class="btn btn-outline" target="_blank">Voir mon CV <span class="btn-arrow" aria-hidden="true">↗</span></a>
+            <a href="#projets" class="btn">Voir mes projets <span class="btn-arrow" aria-hidden="true">→</span></a>
+            <a href="#contact" class="btn btn-outline">Me contacter <span class="btn-arrow" aria-hidden="true">✉</span></a>
+          </div>
+          <div class="hero-minor">
+            <a href="https://github.com/Arthur-rx99/arthur-rx99.github.io" target="_blank" rel="noopener">Code source du site</a>
+            <a href="cv-arthur-roux.pdf" target="_blank">Télécharger mon CV (PDF)</a>
           </div>
         </div>
         <aside class="hero-side">
@@ -60,27 +69,65 @@
           </dl>
         </aside>
       </div>
-      <nav class="sommaire" aria-label="Sommaire">
-        <strong>Sommaire</strong>
-        <a href="#apropos">§01 Périmètre <span>p.2</span></a>
-        <a href="#competences">§02 Constats <span>p.3</span></a>
-        <a href="#projets">§03 Preuves <span>p.4</span></a>
-        <a href="#parcours">§04 Antécédents <span>p.5</span></a>
-        <a href="#contact">§05 Contact <span>p.6</span></a>
-      </nav>
+    </div>
+  </section>
+
+  <!--EN CE MOMENT : grille bento-->
+  <section class="section" id="maintenant">
+    <div class="container">
+      <p class="kicker reveal">§ 01 · État des lieux</p>
+      <h2 class="title reveal">En ce moment</h2>
+      <div class="bento">
+        <article class="tile tile-now reveal">
+          <p class="tile-label">Activité en cours</p>
+          <p class="tile-lead">Je suis en <strong>BTS SIO</strong> à MyDigitalSchool Paris. Je monte mes propres <strong>labs de pentest</strong> sous VirtualBox (Kali Linux, Metasploitable) et je rédige les rapports comme en mission. En parallèle, je développe des sites web pour comprendre comment ils fonctionnent… et comment ils cassent.</p>
+          <pre class="tile-term" aria-label="Extrait de terminal">$ whoami
+arthur · bts-sio · futur-pentester
+$ cat objectif.txt
+Alternance 2 ans · cybersécurité</pre>
+        </article>
+        <article class="tile tile-stamp reveal">
+          <p class="tile-label">Statut</p>
+          <p class="stamp stamp-sm"><span><small>Disponible</small>Alternance<small>Rythme 1 sem. / 2</small></span></p>
+          <a href="#contact" class="link">Me proposer un poste →</a>
+        </article>
+        <article class="tile tile-bar reveal">
+          <p class="tile-label">Antécédent notable</p>
+          <p class="tile-big">Du bar<br>au terminal.</p>
+          <p>Fouquet's, Hôtel du Louvre, Dublin : des années d'hôtellerie 5★ et une <strong>médaille de bronze</strong> au concours Meilleur Apprenti de France. Rigueur, procédures, sang-froid en service.</p>
+        </article>
+        <article class="tile tile-lang reveal">
+          <p class="tile-label">Langues</p>
+          <ul class="meter">
+            <li><span>Français</span><i style="--v:100%"></i><em>Natif</em></li>
+            <li><span>Anglais</span><i style="--v:85%"></i><em>C1</em></li>
+            <li><span>Espagnol</span><i style="--v:55%"></i><em>B1</em></li>
+          </ul>
+        </article>
+        <article class="tile tile-off reveal">
+          <p class="tile-label">Hors écran</p>
+          <ul class="off-list">
+            <li>Basket-ball <em>12 ans de pratique</em></li>
+            <li>Running <em>spécialité 10 km</em></li>
+            <li>Musculation</li>
+            <li>Jeux vidéo <em>FPS</em></li>
+            <li>CTF &amp; labs <em>le soir</em></li>
+          </ul>
+        </article>
+      </div>
     </div>
   </section>
 
   <!--A PROPOS-->
-  <section class="section" id="apropos">
+  <section class="section section-alt" id="apropos">
     <div class="container about">
-      <div class="avatar">
+      <div class="avatar reveal">
         <img src="img/photo.jpg" alt="Photo d'Arthur Roux" onerror="this.remove()">
         <span>AR</span>
       </div>
       <div class="reveal">
-        <p class="kicker">§ 01 · Périmètre</p>
-        <h2 class="title">Faisons connaissance</h2>
+        <p class="kicker">§ 02 · Périmètre</p>
+        <h2 class="title">À propos</h2>
         <p>Je m'appelle Arthur, j'ai <strong>23 ans</strong> et je suis étudiant en <strong>BTS SIO</strong> (Services
           Informatiques aux Organisations) à MyDigitalSchool Paris.</p>
         <p>Mon objectif : me spécialiser en <strong>cybersécurité</strong> et devenir <strong>pentester</strong>. En
@@ -90,21 +137,10 @@
           Dublin). Je connais donc le monde du travail, je sais comment fonctionne une entreprise et ce que l'on attend
           d'un collaborateur. Ces expériences, en France comme à l'étranger, m'ont également permis d'acquérir un
           <strong>très bon niveau d'anglais (C1)</strong>.</p>
-        <ul class="infos">
-          <li><span>Localisation</span>Courbevoie (92)</li>
-          <li><span>Langues</span>Français, Anglais C1, Espagnol B1</li>
-          <li><span>Statut</span>Recherche d'alternance</li>
-        </ul>
       </div>
     </div>
-  </section>
-
-  <!--ATOUTS-->
-  <section class="section section-alt" id="competences">
     <div class="container">
-      <p class="kicker center reveal">§ 02 · Constats</p>
-      <h2 class="title center reveal">À votre service !</h2>
-      <p class="subtitle reveal">Ce que j'apporte à une équipe.</p>
+      <p class="kicker constats-kicker reveal">Constats · ce que j'apporte à une équipe</p>
       <div class="cards">
         <article class="card reveal">
           <div class="icon">
@@ -160,39 +196,19 @@
           <p>Travail d'équipe, créativité, autonomie et organisation, forgés dans l'hôtellerie 5 étoiles.</p>
         </article>
       </div>
-
-      <div class="skills">
-        <div class="window reveal">
-          <div class="window-bar"><i></i><i></i><i></i><span>programmation</span></div>
-          <ul class="window-list">
-            <li>HTML5</li>
-            <li>CSS3</li>
-            <li>JavaScript</li>
-            <li>Python</li>
-            <li>Git / GitHub</li>
-          </ul>
-        </div>
-        <div class="window reveal">
-          <div class="window-bar"><i></i><i></i><i></i><span>sécurité &amp; réseau</span></div>
-          <ul class="window-list">
-            <li>Kali Linux</li>
-            <li>Nmap</li>
-            <li>Metasploit</li>
-            <li>VirtualBox</li>
-            <li>Terminal Linux</li>
-          </ul>
-        </div>
-      </div>
     </div>
   </section>
 
   <!--PROJETS-->
   <section class="section" id="projets">
     <div class="container">
-      <p class="kicker center reveal">§ 03 · Preuves</p>
-      <h2 class="title center reveal">Projets</h2>
-      <p class="subtitle reveal">Une sélection de ce que j'ai construit.</p>
-
+      <div class="section-head reveal">
+        <div>
+          <p class="kicker">§ 03 · Preuves</p>
+          <h2 class="title">Projets sélectionnés</h2>
+        </div>
+        <a href="https://github.com/Arthur-rx99" target="_blank" rel="noopener" class="link">Tous mes dépôts GitHub →</a>
+      </div>
       <div class="filters reveal">
         <button class="filter active" data-filter="all">Tous</button>
         <button class="filter" data-filter="cyber">Cybersécurité</button>
@@ -268,103 +284,62 @@ PORT   STATE SERVICE
   <!--PARCOURS-->
   <section class="section section-alt" id="parcours">
     <div class="container">
-      <p class="kicker center reveal">§ 04 · Antécédents</p>
-      <h2 class="title center reveal">Parcours</h2>
-      <p class="subtitle reveal">De l'hôtellerie de luxe à la cybersécurité.</p>
-
-      <div class="timeline">
-        <div class="tl-item reveal">
-          <span class="tl-date">En cours</span>
-          <div class="tl-card highlight">
-            <h3>BTS Services Informatiques aux Organisations</h3>
-            <p class="tl-place">MyDigitalSchool Paris</p>
-            <p>Programmation, bases de données, administration des systèmes et réseaux. Objectif : poursuivre vers la
-              cybersécurité et le pentest.</p>
+      <p class="kicker reveal">§ 04 · Antécédents</p>
+      <h2 class="title reveal">Parcours</h2>
+      <p class="lead reveal">De l'hôtellerie de luxe à la cybersécurité.</p>
+      <div class="parcours">
+        <div class="journal reveal">
+          <h3 class="journal-title">Expérience</h3>
+          <div class="tl-item"><span class="tl-date">2025 – 2026</span><div class="tl-card"><h3>Chef de rang · Restaurant Amazonia</h3><p class="tl-place">Paris</p><p>Lancement de l'établissement et mise en place de procédures, gestion des incidents en temps réel, autonomie sur ~50 couverts.</p></div></div>
+          <div class="tl-item"><span class="tl-date">2025</span><div class="tl-card"><h3>Barman · Fouquet's ★★★★★</h3><p class="tl-place">Paris</p><p>Encaissements et clôtures de caisse, respect de procédures strictes, avec une logique de reproductibilité et de traçabilité.</p></div></div>
+          <div class="tl-item"><span class="tl-date">2024 – 2025</span><div class="tl-card"><h3>Barman &amp; Chef de rang · Hôtel du Louvre ★★★★★</h3><p class="tl-place">Paris</p><p>Supervision de l'inventaire et des stocks, formation et encadrement du personnel junior.</p></div></div>
+          <div class="tl-item"><span class="tl-date">2023 – 2024</span><div class="tl-card"><h3>Barman · The Church Café</h3><p class="tl-place">Dublin, Irlande</p><p>Ouverture et fermeture du point de vente, communication quotidienne en anglais dans une équipe internationale.</p></div></div>
+        </div>
+        <div class="journal reveal">
+          <h3 class="journal-title">Formation</h3>
+          <div class="tl-item"><span class="tl-date">En cours</span><div class="tl-card highlight"><h3>BTS Services Informatiques aux Organisations</h3><p class="tl-place">MyDigitalSchool Paris</p><p>Programmation, bases de données, administration des systèmes et réseaux. Objectif : poursuivre vers la cybersécurité et le pentest.</p></div></div>
+          <div class="tl-item"><span class="tl-date">2021 – 2022</span><div class="tl-card"><h3>Mention complémentaire Barman</h3><p class="tl-place">Lycée Hôtelier de La Rochelle</p><p>Médaille de bronze au concours Meilleur Apprenti de France.</p></div></div>
+          <div class="tl-item"><span class="tl-date">2018 – 2021</span><div class="tl-card"><h3>Bac Pro Commercialisation et services en restauration</h3><p class="tl-place">Lycée Hôtelier de La Rochelle</p><p>Section européenne.</p></div></div>
+          <div class="cv-banner">
+            <p>Le dossier complet</p>
+            <a href="cv-arthur-roux.pdf" target="_blank" class="btn btn-stamp">Télécharger mon CV <span class="btn-arrow" aria-hidden="true">↓</span></a>
           </div>
         </div>
-        <div class="tl-item reveal">
-          <span class="tl-date">2025 - 2026</span>
-          <div class="tl-card">
-            <h3>Chef de rang · Restaurant Amazonia</h3>
-            <p class="tl-place">Paris</p>
-            <p>Lancement de l'établissement et mise en place de procédures, gestion des incidents en temps réel,
-              autonomie sur ~50 couverts.</p>
-          </div>
-        </div>
-        <div class="tl-item reveal">
-          <span class="tl-date">2025</span>
-          <div class="tl-card">
-            <h3>Barman · Fouquet's ★★★★★</h3>
-            <p class="tl-place">Paris</p>
-            <p>Encaissements et clôtures de caisse, respect de procédures strictes, avec une logique de reproductibilité
-              et de traçabilité.</p>
-          </div>
-        </div>
-        <div class="tl-item reveal">
-          <span class="tl-date">2024 - 2025</span>
-          <div class="tl-card">
-            <h3>Barman &amp; Chef de rang · Hôtel du Louvre ★★★★★</h3>
-            <p class="tl-place">Paris</p>
-            <p>Supervision de l'inventaire et des stocks, formation et encadrement du personnel junior.</p>
-          </div>
-        </div>
-        <div class="tl-item reveal">
-          <span class="tl-date">2023 - 2024</span>
-          <div class="tl-card">
-            <h3>Barman · The Church Café</h3>
-            <p class="tl-place">Dublin, Irlande</p>
-            <p>Ouverture et fermeture du point de vente, communication quotidienne en anglais dans une équipe
-              internationale.</p>
-          </div>
-        </div>
-        <div class="tl-item reveal">
-          <span class="tl-date">2021 - 2022</span>
-          <div class="tl-card">
-            <h3>Mention complémentaire Barman</h3>
-            <p class="tl-place">Lycée Hôtelier de La Rochelle</p>
-            <p>Médaille de bronze au concours Meilleur Apprenti de France.</p>
-          </div>
-        </div>
-        <div class="tl-item reveal">
-          <span class="tl-date">2018 - 2021</span>
-          <div class="tl-card">
-            <h3>Bac Pro Commercialisation et services en restauration</h3>
-            <p class="tl-place">Lycée Hôtelier de La Rochelle</p>
-            <p>Section européenne.</p>
-          </div>
-        </div>
-        <div class="tl-start reveal">
-          <span class="tl-start-icon"><svg viewBox="0 0 24 24">
-              <path d="M5 21V4M5 4h11l-2 4 2 4H5" />
-            </svg></span>
-          Début du parcours <em>2018</em>
-        </div>
-      </div>
-
-      <div class="cv-banner reveal">
-        <p>Consultez mon curriculum vitae</p>
-        <a href="cv-arthur-roux.pdf" target="_blank" class="btn btn-stamp">Télécharger mon CV <span class="btn-arrow" aria-hidden="true">↓</span></a>
       </div>
     </div>
   </section>
 
-  <!--HORS ECRAN-->
-  <section class="section" id="loisirs">
+  <!--OUTILS-->
+  <section class="section" id="outils">
     <div class="container">
-      <p class="kicker center reveal">§ 05 · Annexe</p>
-      <h2 class="title center reveal">En dehors de l'écran</h2>
-      <div class="hobbies reveal">
-        <div><strong>🏀</strong>Basket-ball<span>12 ans de pratique</span></div>
-        <div><strong>🏃</strong>Running<span>Spécialisé en course de 10 km</span></div>
-        <div><strong>🏋️</strong>Musculation</div>
-        <div><strong>🎮</strong>Jeux vidéo<span>FPS</span></div>
-        <div><strong>🔐</strong>Pentesting<span>CTF et labs</span></div>
-      </div>
+      <p class="kicker reveal">§ 05 · Matériel utilisé</p>
+      <h2 class="title reveal">Mes outils</h2>
+      <p class="lead reveal">Ceux que j'ouvre tous les jours, en labo comme en dev.</p>
+      <ul class="tools reveal">
+        <li><b>Kali Linux</b><code>kali-linux-default</code></li>
+        <li><b>Nmap</b><code>nmap</code></li>
+        <li><b>Metasploit</b><code>metasploit-framework</code></li>
+        <li><b>VirtualBox</b><code>virtualbox</code></li>
+        <li><b>Terminal Linux</b><code>bash</code></li>
+        <li><b>Python</b><code>python3</code></li>
+        <li><b>Git / GitHub</b><code>git</code></li>
+        <li><b>HTML · CSS · JS</b><code>vscode</code></li>
+      </ul>
+    </div>
+  </section>
+
+  <!--APPEL A L'ACTION-->
+  <section class="cta-band">
+    <div class="container cta-inner reveal">
+      <p class="kicker">Conclusion de l'audit</p>
+      <p class="cta-title">Une alternance à proposer ?</p>
+      <p class="cta-text">Je réponds vite, en français comme en anglais.</p>
+      <a href="#contact" class="btn btn-invert">Me contacter <span class="btn-arrow" aria-hidden="true">→</span></a>
     </div>
   </section>
 
   <!--CONTACT-->
-  <section class="section section-alt" id="contact">
+  <section class="section" id="contact">
     <div class="container contact">
       <div class="reveal">
         <p class="kicker">§ 06 · Contact</p>
@@ -389,8 +364,21 @@ PORT   STATE SERVICE
   </section>
 
   <footer class="footer">
-    <p>© Arthur Roux | <span id="year"></span></p>
+    <div class="container footer-inner">
+      <p>Fait main en HTML, CSS et JavaScript, sans framework.</p>
+      <p class="footer-links"><a href="https://github.com/Arthur-rx99" target="_blank" rel="noopener">GitHub</a><a href="https://www.linkedin.com/in/arthurroux" target="_blank" rel="noopener">LinkedIn</a><a href="mailto:arthurroux99@gmail.com">Email</a></p>
+      <p>© Arthur Roux · <span id="year"></span> · <kbd>Ctrl</kbd>+<kbd>K</kbd> pour naviguer</p>
+    </div>
   </footer>
+
+  <!--PALETTE DE COMMANDES (Ctrl+K)-->
+  <div class="palette" id="palette" hidden>
+    <div class="palette-box" role="dialog" aria-modal="true" aria-label="Recherche rapide">
+      <label class="palette-input"><span aria-hidden="true">$</span><input id="palette-q" type="text" placeholder="Aller à… (projets, cv, contact)" autocomplete="off"></label>
+      <ul id="palette-list" role="listbox"></ul>
+      <p class="palette-hint"><kbd>↑</kbd><kbd>↓</kbd> naviguer · <kbd>Entrée</kbd> ouvrir · <kbd>Échap</kbd> fermer</p>
+    </div>
+  </div>
 
   <script src="script.js"></script>
 </body>
