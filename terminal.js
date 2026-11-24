@@ -15,6 +15,25 @@
   const lien = (url, texte) => `<a href="${url}" target="_blank" rel="noopener">${texte}</a>`;
   const v = (t) => `<span class="t-vert">${t}</span>`;
   const g = (t) => `<span class="t-gris">${t}</span>`;
+  // commande cliquable : un clic la lance, comme si on l'avait tapée
+  const c = (cmd, txt = cmd) => `<button type="button" class="t-cmd" data-cmd="${cmd}">${txt}</button>`;
+
+  // ----- Mode guidé : les étapes à suivre pour découvrir le profil -----
+  const ETAPES = [
+    ["whoami", "pour savoir qui je suis"],
+    ["ls", "pour lister mes fichiers"],
+    ["cat about.txt", "pour lire ma présentation"],
+    ["cat competences.txt", "pour voir mes compétences"],
+    ["projets", "pour voir mes projets"],
+    ["cat parcours.txt", "pour mon parcours"],
+    ["contact", "pour savoir comment me joindre"],
+    ["cv", "pour télécharger mon CV"],
+  ];
+  let etape = -1; // -1 = guide inactif
+  const consigne = () => {
+    const [cmd, but] = ETAPES[etape];
+    return `<span class="t-guide">→ Étape ${etape + 1}/${ETAPES.length} : tape ${c(cmd)} ${but}</span>`;
+  };
 
   const FICHIERS = {
     "about.txt": () => [
@@ -53,18 +72,28 @@
 
   const COMMANDES = {
     help: () => [
-      "Commandes disponibles :",
-      `  ${v("whoami")}           qui je suis`,
-      `  ${v("ls")}               lister les fichiers`,
-      `  ${v("cat")} ${g("<fichier>")}    lire un fichier (ex. ${v("cat about.txt")})`,
-      `  ${v("projets")}          mes projets, avec les liens`,
-      `  ${v("open")} ${g("<projet>")}    ouvrir un projet (ex. ${v("open curry")})`,
-      `  ${v("cd")} ${g("<section>")}     aller à une section de la page`,
-      `  ${v("cv")}               télécharger mon CV`,
-      `  ${v("contact")}          me joindre`,
-      `  ${v("clear")}            effacer l'écran · ${v("exit")} fermer`,
+      "Commandes disponibles (tu peux aussi cliquer dessus) :",
+      `  ${c("guide")}            visite guidée, étape par étape`,
+      `  ${c("whoami")}           qui je suis`,
+      `  ${c("ls")}               lister les fichiers`,
+      `  ${v("cat")} ${g("<fichier>")}    lire un fichier (ex. ${c("cat about.txt")})`,
+      `  ${c("projets")}          mes projets, avec les liens`,
+      `  ${v("open")} ${g("<projet>")}    ouvrir un projet (ex. ${c("open curry")})`,
+      `  ${v("cd")} ${g("<section>")}     aller à une section (ex. ${c("cd contact")})`,
+      `  ${c("cv")}               télécharger mon CV`,
+      `  ${c("contact")}          me joindre`,
+      `  ${c("clear")}            effacer l'écran · ${c("exit")} fermer`,
       g("Astuces : Tab complète, ↑ ↓ rappellent les commandes. Il y a aussi des commandes cachées…"),
     ],
+    guide: () => {
+      etape = 0;
+      return [
+        "Visite guidée : je te dis quoi taper, tu tapes la commande puis Entrée.",
+        g("(Tu peux aussi cliquer sur la commande en vert. Tape « stop » pour quitter le guide.)"),
+        "", consigne(),
+      ];
+    },
+    stop: () => { etape = -1; return ["Guide arrêté. Tape " + c("help") + " pour voir toutes les commandes."]; },
     whoami: () => [`arthur · 23 ans · ${v("futur pentester")} · en recherche d'alternance`],
     ls: (args) => {
       if (args[0] && args[0].replace(/\/$/, "") === "projets") return COMMANDES.projets();
@@ -124,7 +153,21 @@
     hack: () => ["Accès refusé. Mais tu peux me recruter, c'est plus simple. → " + v("contact")],
     "rm": (args) => (args.join(" ").includes("-rf") ? ["Nice try. Ce portfolio est en lecture seule 🛡️"] : ["rm: opération non permise"]),
   };
-  const NOMS = Object.keys(COMMANDES).filter((c) => !["sudo", "nmap", "hack", "rm"].includes(c));
+  const NOMS = Object.keys(COMMANDES).filter((n) => !["sudo", "nmap", "hack", "rm"].includes(n));
+
+  // Commande la plus proche (distance de Levenshtein ≤ 2)
+  function suggestion(mot) {
+    const dist = (a, b) => {
+      const d = Array.from({ length: a.length + 1 }, (_, i) => [i, ...Array(b.length).fill(0)]);
+      for (let j = 1; j <= b.length; j++) d[0][j] = j;
+      for (let i = 1; i <= a.length; i++) for (let j = 1; j <= b.length; j++)
+        d[i][j] = Math.min(d[i - 1][j] + 1, d[i][j - 1] + 1, d[i - 1][j - 1] + (a[i - 1] === b[j - 1] ? 0 : 1));
+      return d[a.length][b.length];
+    };
+    let meilleur = null, min = 3;
+    for (const n of NOMS) { const x = dist(mot, n); if (x < min) { min = x; meilleur = n; } }
+    return meilleur;
+  }
 
   function afficher(lignes) {
     lignes.forEach((l) => {
@@ -143,7 +186,22 @@
     historique.push(ligne); pos = historique.length;
     const [cmd, ...args] = ligne.split(/\s+/);
     const fn = COMMANDES[cmd.toLowerCase()];
-    afficher(fn ? fn(args) : [`${esc(cmd)} : commande introuvable. Tape ${v("help")} pour la liste.`]);
+    if (fn) afficher(fn(args));
+    else {
+      const proche = suggestion(cmd.toLowerCase());
+      afficher([`${esc(cmd)} : commande introuvable.` + (proche ? ` Tu voulais dire ${c(proche)} ?` : "") + ` Tape ${c("help")} pour la liste.`]);
+    }
+    // Mode guidé : passe à l'étape suivante si la bonne commande a été tapée
+    if (etape >= 0 && !["guide", "stop"].includes(cmd.toLowerCase())) {
+      if (ligne.toLowerCase() === ETAPES[etape][0]) {
+        etape++;
+        if (etape === ETAPES.length) {
+          etape = -1;
+          afficher(["", `<span class="t-guide">✓ Visite terminée, bravo ! Tu sais maintenant utiliser un terminal 😉</span>`,
+            g("Pour aller plus loin : ") + c("help") + g(", ou cherche les commandes cachées…")]);
+        } else afficher(["", consigne()]);
+      } else afficher(["", g("Pas tout à fait. ") + consigne()]);
+    }
   }
 
   function ouvrir() {
@@ -154,7 +212,8 @@
       premiereFois = false;
       afficher([
         `Bienvenue sur le terminal d'Arthur ${g("(v1.0)")}`,
-        `Tape ${v("help")} pour voir les commandes, ou ${v("whoami")} pour commencer.`,
+        `Jamais utilisé de terminal ? Tape ${c("guide")} pour une visite guidée.`,
+        `Sinon, tape ${c("help")} pour voir toutes les commandes.`,
         "",
       ]);
     }
@@ -171,7 +230,11 @@
   document.querySelectorAll("[data-term-ouvrir]").forEach((el) => el.addEventListener("click", (e) => { e.preventDefault(); ouvrir(); }));
   fenetre.querySelector(".term-fermer").addEventListener("click", fermer);
   fenetre.addEventListener("click", (e) => { if (e.target === fenetre) fermer(); });
-  sortie.addEventListener("click", () => { if (!getSelection().toString()) saisie.focus(); });
+  sortie.addEventListener("click", (e) => {
+    const bouton = e.target.closest(".t-cmd");
+    if (bouton) { executer(bouton.dataset.cmd); saisie.focus(); return; }
+    if (!getSelection().toString()) saisie.focus();
+  });
 
   form.addEventListener("submit", (e) => { e.preventDefault(); executer(saisie.value); saisie.value = ""; });
 

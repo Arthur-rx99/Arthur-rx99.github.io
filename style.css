@@ -1148,3 +1148,14 @@ kbd {
 @media (prefers-reduced-motion: reduce) {
   .term-btn span, .term-fenetre { animation: none; }
 }
+.t-cmd {
+  padding: 0 2px;
+  border: 0;
+  border-bottom: 1px dashed rgba(52, 211, 153, 0.6);
+  background: none;
+  font: inherit;
+  color: var(--vert);
+  cursor: pointer;
+}
+.t-cmd:hover, .t-cmd:focus-visible { background: var(--vert-doux); outline: none; }
+.t-guide { display: inline-block; padding: 2px 8px; border-left: 2px solid var(--vert); background: var(--vert-doux); color: var(--titre); }
