@@ -47,10 +47,11 @@
   <!--A PROPOS-->
   <section class="section" id="apropos">
     <div class="container about">
-      <div class="avatar">
+      <figure class="avatar">
         <img src="img/photo.jpg" alt="Photo d'Arthur Roux" onerror="this.remove()">
         <span>AR</span>
-      </div>
+        <figcaption aria-hidden="true"><b>$ whoami</b>arthur · 23 ans · futur pentester</figcaption>
+      </figure>
       <div class="reveal">
         <h2 class="title">Faisons connaissance <span>:)</span></h2>
         <p>Je m'appelle Arthur, j'ai <strong>23 ans</strong> et je suis étudiant en <strong>BTS SIO</strong> (Services
@@ -212,8 +213,7 @@ PORT   STATE SERVICE
         </article>
 
         <article class="project reveal" data-cat="web">
-          <div class="project-visual"><img src="https://arthur-rx99.github.io/mes-sites/portfolio_restauration/img/fouquets.webp"
-              alt="Aperçu du portfolio restauration" loading="lazy"></div>
+          <div class="project-visual"><img src="img/projets/restauration.jpg" alt="Page d'accueil du portfolio restauration" loading="lazy"></div>
           <div class="project-body">
             <span class="date">Nov. 2026</span>
             <h3>Portfolio restauration</h3>
@@ -226,8 +226,7 @@ PORT   STATE SERVICE
         </article>
 
         <article class="project reveal" data-cat="web">
-          <div class="project-visual"><img src="https://arthur-rx99.github.io/mes-sites/curry/images/background_steph.png" alt="Aperçu du site Stephen Curry"
-              loading="lazy"></div>
+          <div class="project-visual"><img src="img/projets/curry.jpg" alt="Page d'accueil du site sur Stephen Curry" loading="lazy"></div>
           <div class="project-body">
             <span class="date">Sept. 2026</span>
             <h3>Site Stephen Curry · Biographie</h3>
@@ -240,8 +239,7 @@ PORT   STATE SERVICE
         </article>
 
         <article class="project reveal" data-cat="web">
-          <div class="project-visual"><img src="https://arthur-rx99.github.io/mes-sites/burger/img/hero-burger.svg" alt="Aperçu du site Chez Bun"
-              loading="lazy"></div>
+          <div class="project-visual"><img src="img/projets/chez-bun.jpg" alt="Page d'accueil du site Chez Bun" loading="lazy"></div>
           <div class="project-body">
             <span class="date">Oct. 2026</span>
             <h3>Chez Bun</h3>
@@ -334,7 +332,7 @@ PORT   STATE SERVICE
 
       <div class="cv-banner reveal">
         <p>Consultez mon curriculum vitae</p>
-        <a href="cv-arthur-roux.pdf" target="_blank" class="btn">Télécharger mon CV<span class="key-legend" aria-hidden="true">Ctrl S</span></a>
+        <a href="cv-arthur-roux.pdf" download="CV-Arthur-Roux.pdf" class="btn">Télécharger mon CV<span class="key-legend" aria-hidden="true">Ctrl S</span></a>
       </div>
     </div>
   </section>
@@ -343,13 +341,43 @@ PORT   STATE SERVICE
   <section class="section" id="loisirs">
     <div class="container">
       <h2 class="title reveal">En dehors de l'écran</h2>
-      <ul class="hobbies reveal">
-        <li>Basket-ball <span>12 ans de pratique</span></li>
-        <li>Running <span>spécialisé en 10 km</span></li>
-        <li>Musculation</li>
-        <li>Jeux vidéo <span>FPS</span></li>
-        <li>Pentesting <span>CTF et labs</span></li>
-      </ul>
+      <div class="loisirs reveal">
+        <article class="loisir loisir-basket">
+          <img class="loisir-logo" src="img/logos/jordan.svg" alt="" width="56" height="56" loading="lazy">
+          <h3>Basket-ball</h3>
+          <p>12 ans de pratique</p>
+        </article>
+        <article class="loisir loisir-run">
+          <img class="loisir-photo" src="img/loisirs/running.jpg" alt="Arthur en pleine course, dossard sur le maillot" loading="lazy">
+          <div class="loisir-txt">
+            <h3>Running</h3>
+            <p>Spécialisé en 10 km</p>
+          </div>
+        </article>
+        <article class="loisir loisir-muscu">
+          <img class="loisir-logo loisir-crossfit" src="img/loisirs/crossfit.png" alt="" width="54" height="90" loading="lazy">
+          <h3>Musculation</h3>
+          <p>Crossfit / hypertrophie</p>
+        </article>
+        <article class="loisir loisir-jeux">
+          <h3>Jeux vidéo</h3>
+          <p>FPS</p>
+          <ul class="jeux">
+            <li><img src="img/logos/rockstargames.svg" alt="" width="28" height="28" loading="lazy">GTA VI</li>
+            <li><img src="img/logos/ubisoft.svg" alt="" width="28" height="28" loading="lazy">Rainbow Six Siege</li>
+            <li><img src="img/logos/valorant.svg" alt="" width="28" height="28" loading="lazy">Valorant</li>
+            <li><img src="img/logos/2k.svg" alt="" width="28" height="28" loading="lazy">NBA 2K27</li>
+          </ul>
+        </article>
+        <article class="loisir loisir-pentest">
+          <div class="loisir-logos">
+            <img src="img/logos/hackthebox.svg" alt="Hack The Box" width="44" height="44" loading="lazy">
+            <img src="img/logos/tryhackme.svg" alt="TryHackMe" width="44" height="44" loading="lazy">
+          </div>
+          <h3>Pentesting</h3>
+          <p>CTF et labs <span class="blink" aria-hidden="true">_</span></p>
+        </article>
+      </div>
     </div>
   </section>
 
