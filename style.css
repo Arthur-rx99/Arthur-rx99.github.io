@@ -1060,6 +1060,7 @@ figure.avatar { margin: 0; cursor: default; transition: transform 0.35s ease, bo
    ========================================================= */
 .hero-astuce { margin-top: 22px; font: 0.85rem "JetBrains Mono", monospace; color: var(--gris); }
 .hero-astuce a { color: var(--vert); text-decoration: underline; text-underline-offset: 3px; }
+.hero-ctf { margin-top: 8px; }
 kbd {
   display: inline-block;
   padding: 1px 6px;

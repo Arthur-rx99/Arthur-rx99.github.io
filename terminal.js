@@ -460,7 +460,11 @@
   }
 
   btn.addEventListener("click", () => (fenetre.hidden ? ouvrir() : fermer()));
-  document.querySelectorAll("[data-term-ouvrir]").forEach((el) => el.addEventListener("click", (e) => { e.preventDefault(); ouvrir(); }));
+  document.querySelectorAll("[data-term-ouvrir]").forEach((el) => el.addEventListener("click", (e) => {
+    e.preventDefault();
+    ouvrir();
+    if (el.dataset.termCmd) executer(el.dataset.termCmd); // ex. le lien « Tape ctf » lance directement la commande
+  }));
   fenetre.querySelector(".term-fermer").addEventListener("click", fermer);
   fenetre.addEventListener("click", (e) => { if (e.target === fenetre) fermer(); });
   sortie.addEventListener("click", (e) => {
