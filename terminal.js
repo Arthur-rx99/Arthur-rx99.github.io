@@ -68,6 +68,42 @@
     ["curry", "Site Stephen Curry · Biographie", "https://arthur-rx99.github.io/projets/stephen-curry/"],
     ["chez-bun", "Chez Bun (burgers)", "https://arthur-rx99.github.io/projets/chez-bun/"],
   ];
+  // ----- Chasse aux flags (mini CTF facile) -----
+  // On ne garde ici que l'empreinte SHA-256 de chaque flag : lire ce fichier ne donne pas les réponses
+  const FLAGS = [
+    ["204431dd782bce21b319b8a6cbbd71849f239741cecdd9294b98f44705a1a4ce", "Les développeurs oublient parfois des choses dans le code source de la page (Ctrl+U)."],
+    ["2a7d63681296f0963e6623acade91972f88e2920584299a315157ee829b850bb", "Les développeurs discutent dans la console du navigateur (F12, onglet Console)."],
+    ["5edf270441a0a14d7bee2aeb3eabaf0a2c2e8857381cf2c865ff285eb94d2aa8", "Les robots des moteurs de recherche ont leur propre fichier de consignes (/robots.txt)."],
+    ["133a41f34660cd8d63933c429a2099c9a665b556a1fa00e6ad7c0637bc61834f", "Sous Linux, les fichiers cachés commencent par un point. Liste-les avec ls -a."],
+    ["3a060fd263c7e7a2cecf86f48ab43dd0812c327c2adc33cc643adb109a213d49", "Les meilleurs joueurs sont récompensés : fais 10 points au snake."],
+  ];
+  const CLE_FLAGS = "ctf-flags";
+  const lireFlags = () => { try { return JSON.parse(localStorage.getItem(CLE_FLAGS)) || []; } catch { return []; } };
+  const ecrireFlags = (l) => { try { localStorage.setItem(CLE_FLAGS, JSON.stringify(l)); } catch {} };
+  const trouves = new Set(lireFlags());
+  const progression = () => {
+    const n = trouves.size, total = FLAGS.length;
+    return `${v("█".repeat(n))}${g("░".repeat(total - n))}  ${v(n)}/${total} flags trouvés`;
+  };
+  async function empreinte(texte) {
+    const octets = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(texte));
+    return [...new Uint8Array(octets)].map((b) => b.toString(16).padStart(2, "0")).join("");
+  }
+  async function soumettre(flag) {
+    if (!flag) return afficher([`usage : submit FLAG{...}`]);
+    if (!window.crypto || !crypto.subtle) return afficher(["Vérification impossible sur cette page (il faut https)."]);
+    const h = await empreinte(flag.trim());
+    const i = FLAGS.findIndex(([x]) => x === h);
+    if (i < 0) return afficher([`✗ ${esc(flag)} n'est pas un flag valide. Continue de chercher 🔍`]);
+    if (trouves.has(i)) return afficher([`Tu as déjà trouvé ce flag 😉`, progression()]);
+    trouves.add(i); ecrireFlags([...trouves]);
+    const lignes = [`${v(`✓ Flag n°${i + 1} validé !`)} Bien joué.`, progression()];
+    if (trouves.size === FLAGS.length) lignes.push("",
+      `<span class="t-guide">🏆 Bravo, tu as trouvé les ${FLAGS.length} flags ! Tu as l'âme d'un pentester.</span>`,
+      `Ça te dirait de travailler avec quelqu'un qui aime ça autant que toi ? → ${c("contact")}`);
+    afficher(lignes);
+  }
+
   const SECTIONS = { accueil: "accueil", apropos: "apropos", about: "apropos", competences: "competences", projets: "projets", parcours: "parcours", loisirs: "loisirs", contact: "contact" };
 
   const COMMANDES = {
@@ -82,6 +118,7 @@
       `  ${v("cd")} ${g("<section>")}     aller à une section (ex. ${c("cd contact")})`,
       `  ${c("cv")}               télécharger mon CV`,
       `  ${c("contact")}          me joindre`,
+      `  ${c("ctf")}              chasse aux flags : ${FLAGS.length} flags cachés sur le site`,
       `  ${c("clear")}            effacer l'écran · ${c("exit")} fermer`,
       g("Astuces : Tab complète, ↑ ↓ rappellent les commandes. Il y a aussi des commandes cachées…"),
     ],
@@ -96,15 +133,22 @@
     stop: () => { etape = -1; return ["Guide arrêté. Tape " + c("help") + " pour voir toutes les commandes."]; },
     whoami: () => [`arthur · 23 ans · ${v("futur pentester")} · en recherche d'alternance`],
     ls: (args) => {
-      if (args[0] && args[0].replace(/\/$/, "") === "projets") return COMMANDES.projets();
-      return [`${v("projets/")}  about.txt  competences.txt  parcours.txt  contact.txt  cv.pdf`];
+      const cache = args.some((a) => /^-\w*a/.test(a));
+      const dossier = args.find((a) => !a.startsWith("-"));
+      if (dossier && dossier.replace(/\/$/, "") === "projets") return COMMANDES.projets();
+      return [`${cache ? `${g(".")}  ${g("..")}  ${v(".secret")}  ` : ""}${v("projets/")}  about.txt  competences.txt  parcours.txt  contact.txt  cv.pdf`];
     },
     cat: (args) => {
       const f = args[0];
       if (!f) return ["usage : cat <fichier>"];
       if (f === "cv.pdf") return ["Fichier binaire. Essaie plutôt " + v("cv") + " pour le télécharger."];
       if (f === "/etc/shadow" || f === "/etc/passwd") return ["Bien essayé 😏 Permission refusée."];
-      if (f === "flag.txt") return ["Pas si vite. Les vrais pentesters cherchent ailleurs…"];
+      if (f === "flag.txt") return ["Pas si vite. Les vrais pentesters cherchent ailleurs… Tape " + c("ctf") + " pour la chasse aux flags."];
+      if (f === ".secret") return [
+        "RkxBR3tmMWNoMTNyX2M0Y2gzfQ==",
+        g("Hmm, ça ne ressemble pas à du français. Ce == à la fin, c'est typique du base64…"),
+        g("Essaie : ") + v("base64 -d &lt;texte&gt;"),
+      ];
       return FICHIERS[f] ? FICHIERS[f]() : [`cat: ${esc(f)}: fichier introuvable (tape ${v("ls")})`];
     },
     projets: () => [
@@ -131,6 +175,21 @@
       return [`Téléchargement de ${v("CV-Arthur-Roux.pdf")}… ✓`];
     },
     contact: () => FICHIERS["contact.txt"](),
+    ctf: () => [
+      `${v("Chasse aux flags")} ${g("· un mini CTF pour les curieux")}`,
+      `${FLAGS.length} flags de la forme ${v("FLAG{...}")} sont cachés sur ce site. Trouve-les et valide-les avec ${v("submit FLAG{...}")}.`,
+      "",
+      ...FLAGS.map(([, indice], i) => `${trouves.has(i) ? v("✓") : g("○")} ${g(`${i + 1}.`)} ${indice}`),
+      "",
+      progression(),
+      g("Ta progression reste enregistrée dans ce navigateur."),
+    ],
+    submit: (args) => { soumettre(args.join(" ")); return []; },
+    base64: (args) => {
+      const texte = args.filter((a) => a !== "-d" && a !== "--decode").join("");
+      if (!args.includes("-d") && !args.includes("--decode")) return [texte ? esc(btoa(unescape(encodeURIComponent(texte)))) : "usage : base64 -d <texte>"];
+      try { return [esc(decodeURIComponent(escape(atob(texte))))]; } catch { return ["base64: entrée invalide"]; }
+    },
     github: () => { window.open("https://github.com/Arthur-rx99", "_blank", "noopener"); return ["Ouverture de GitHub…"]; },
     linkedin: () => { window.open("https://www.linkedin.com/in/arthurroux", "_blank", "noopener"); return ["Ouverture de LinkedIn…"]; },
     date: () => [new Date().toLocaleString("fr-FR")],
@@ -234,6 +293,7 @@
       jeu.corps = [tete, ...corps];
       if (mange) {
         jeu.score++;
+        if (jeu.score >= 10) jeu.flag = true;
         placerPomme();
         if (jeu.vitesse > 70) { jeu.vitesse -= 4; relancer(); } // ça accélère un peu à chaque pomme
       }
@@ -247,7 +307,7 @@
       const texte = cases.map((l) => l.join("")).join("\n");
       // Message au centre de la grille (pause / game over)
       const msg = jeu.etat === "pause" ? ["PAUSE", tactile ? "touche ❚❚ pour reprendre" : "espace pour reprendre"]
-        : jeu.etat === "fin" ? ["GAME OVER", jeu.nouveauRecord ? "★ nouveau record ★" : `score : ${jeu.score}`, tactile ? "touche la grille pour rejouer" : "entrée pour rejouer · échap quitter"]
+        : jeu.etat === "fin" ? ["GAME OVER", jeu.nouveauRecord ? "★ nouveau record ★" : `score : ${jeu.score}`, ...(jeu.score >= 10 ? ["🚩 flag débloqué, quitte pour le voir"] : []), tactile ? "touche la grille pour rejouer" : "entrée pour rejouer · échap quitter"]
         : null;
       grille.innerHTML = texte;
       grille.classList.toggle("snake-voile", !!msg);
@@ -298,10 +358,13 @@
   function quitterSnake() {
     if (!jeu) return;
     clearInterval(jeu.timer);
-    const { el, score, record } = jeu;
+    if (jeu.score > jeu.record) { jeu.record = jeu.score; ecrireRecord(jeu.score); } // si on quitte en pleine partie
+    const { el, score, record, flag } = jeu;
     jeu = null;
     el.remove();
-    afficher([`${g("snake terminé ·")} score ${v(score)} ${g("·")} record ${v(record)}`, ""]);
+    afficher([`${g("snake terminé ·")} score ${v(score)} ${g("·")} record ${v(record)}`]);
+    if (flag) afficher([`🚩 10 points, bien joué ! Voici ton flag : ${v(atob("RkxBR3tzbjRrM19tNHN0M3J9"))}`, g("Valide-le avec ") + v("submit") + g(" suivi du flag.")]);
+    afficher([""]);
     form.hidden = false;
     if (!fenetre.hidden) saisie.focus();
   }
@@ -436,3 +499,10 @@
     }
   });
 })();
+
+// Un message pour ceux qui ouvrent la console (chasse aux flags)
+console.log(
+  "%c>_ Salut le curieux !%c\nOuvrir la console, c'est déjà un réflexe de pentester 😉\nVoici ton flag : FLAG{c0ns0l3_d3v}\nValide-le dans le terminal du site avec : submit FLAG{...}",
+  "color:#34d399;font:600 16px monospace",
+  "color:inherit;font:13px monospace"
+);
