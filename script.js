@@ -246,8 +246,10 @@ document.querySelectorAll(".filter").forEach((btn) => {
   });
 });
 
-// ===== Formulaire : envoi direct dans la boîte mail via FormSubmit (sans quitter la page) =====
+// ===== Formulaire : envoi direct dans la boîte mail via Web3Forms (sans quitter la page) =====
 const ADRESSE = "arthurroux99@gmail.com";
+// Clé d'accès Web3Forms : elle n'est pas secrète, elle indique seulement à quelle boîte livrer les messages
+const CLE_WEB3FORMS = "eeddf5d7-c28f-4f42-b63a-cb88801dbc75";
 const formulaire = document.getElementById("form");
 const statut = document.getElementById("form-statut");
 const UN_JOUR = 24 * 60 * 60 * 1000;
@@ -272,7 +274,7 @@ function noterEnvoi(email) {
 formulaire.addEventListener("submit", async (e) => {
   e.preventDefault();
   const f = e.target;
-  if (f._honey.value) return; // robot
+  if (f.botcheck.value) return; // robot
   // Anti-spam : un message par jour et par visiteur (navigateur + adresse e-mail)
   const restant = attenteRestante(f.email.value);
   if (restant > 0) {
@@ -285,15 +287,26 @@ formulaire.addEventListener("submit", async (e) => {
   bouton.disabled = true;
   statut.className = "form-statut";
   statut.textContent = "$ envoi en cours…";
+  let delai, patience;
   try {
-    const rep = await fetch(`https://formsubmit.co/ajax/${ADRESSE}`, {
+    // Délai maximum : au-delà de 20 s, on propose le plan B plutôt que de laisser attendre
+    const ctrl = new AbortController();
+    delai = setTimeout(() => ctrl.abort(), 20000);
+    patience = setTimeout(() => { statut.textContent = "$ envoi en cours… cela peut prendre quelques secondes"; }, 4000);
+    if (CLE_WEB3FORMS === "A_REMPLACER") throw new Error("clé manquante");
+    const rep = await fetch("https://api.web3forms.com/submit", {
+      signal: ctrl.signal,
       method: "POST",
       headers: { "Content-Type": "application/json", Accept: "application/json" },
       body: JSON.stringify({
-        nom: f.nom.value, email: f.email.value, message: f.message.value,
-        _subject: "Contact portfolio - " + f.nom.value, _replyto: f.email.value, _template: "table",
+        access_key: CLE_WEB3FORMS,
+        subject: "Contact portfolio - " + f.nom.value,
+        from_name: "Portfolio Arthur Roux",
+        name: f.nom.value, email: f.email.value, message: f.message.value,
+        botcheck: "",
       }),
     });
+    clearTimeout(patience);
     const res = await rep.json().catch(() => ({}));
     if (!rep.ok || String(res.success) !== "true") throw new Error(res.message || "échec");
     noterEnvoi(f.email.value);
@@ -307,6 +320,7 @@ formulaire.addEventListener("submit", async (e) => {
     const corps = encodeURIComponent(f.message.value + "\n\n" + f.nom.value + " (" + f.email.value + ")");
     statut.innerHTML = `L'envoi n'a pas marché. <a href="mailto:${ADRESSE}?subject=${sujet}&body=${corps}">Écrivez-moi directement par mail</a>.`;
   } finally {
+    clearTimeout(delai); clearTimeout(patience);
     bouton.disabled = false;
   }
 });
