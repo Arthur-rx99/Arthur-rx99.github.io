@@ -790,3 +790,99 @@ body { background: var(--bg); }
 .marquee-row, .marquee { min-width: 0; max-width: 100%; }
 /* Sécurité & réseau défile dans l'autre sens (de gauche à droite) */
 .marquee-row:nth-child(2) .marquee-track { animation-direction: reverse; }
+
+/* ----- Fond interactif : le scan réseau est bien visible ----- */
+#hero-canvas { opacity: 1; }
+
+/* ----- Atouts : un terminal à onglets (remplace les 5 cartes) ----- */
+.cards { display: none; }
+.atouts {
+  background: #07100c;
+  border: 1px solid var(--bordure);
+  border-radius: 12px;
+  overflow: hidden;
+}
+.atouts-bar {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 11px 16px;
+  border-bottom: 1px solid var(--bordure);
+  background: #0c1712;
+}
+.atouts-bar i { width: 11px; height: 11px; border-radius: 50%; background: #23372d; }
+.atouts-bar i:first-child { background: #e5534b; }
+.atouts-bar i:nth-child(2) { background: #e3b341; }
+.atouts-bar i:nth-child(3) { background: var(--vert); }
+.atouts-bar span { margin-left: 10px; font: 500 0.8rem "JetBrains Mono", monospace; color: var(--gris); }
+
+.atouts-inner { display: grid; grid-template-columns: 290px 1fr; min-height: 300px; }
+.atouts-list { display: flex; flex-direction: column; padding: 12px; gap: 4px; border-right: 1px solid var(--bordure); }
+.atout-tab {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  background: none;
+  border: 0;
+  border-radius: 6px;
+  font: 500 0.92rem "JetBrains Mono", monospace;
+  color: var(--gris);
+  text-align: left;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s;
+}
+.atout-tab .num { color: #3d5a4b; font-size: 0.8rem; }
+.atout-tab:hover { color: var(--titre); background: rgba(52, 211, 153, 0.05); }
+.atout-tab[aria-selected="true"] { color: #06120c; background: var(--vert); }
+.atout-tab[aria-selected="true"] .num { color: #06120c; opacity: 0.6; }
+.atout-tab[aria-selected="true"]::after { content: "▸"; margin-left: auto; }
+.atout-tab:focus-visible { outline: 2px solid var(--titre); outline-offset: 2px; }
+
+.atouts-screen { padding: 26px 30px; }
+.atout-cmd { font: 0.88rem "JetBrains Mono", monospace; color: var(--texte); margin-bottom: 22px; white-space: nowrap; overflow: hidden; }
+.atout-cmd .prompt { color: var(--vert); }
+/* la commande se tape à chaque changement d'onglet */
+.atout-cmd.tape { animation: taper 0.7s steps(30) both; }
+@keyframes taper { from { clip-path: inset(0 100% 0 0); } to { clip-path: inset(0 0 0 0); } }
+
+.atout-out { display: grid; grid-template-columns: 84px 1fr; gap: 24px; align-items: start; animation: apparait 0.4s 0.5s both; }
+@keyframes apparait { from { opacity: 0; transform: translateY(6px); } }
+.atout-icon {
+  width: 84px; height: 84px;
+  display: grid;
+  place-items: center;
+  border: 1px dashed rgba(52, 211, 153, 0.4);
+  border-radius: 10px;
+}
+.atout-icon svg { width: 40px; height: 40px; fill: none; stroke: var(--vert); stroke-width: 1.6; stroke-linecap: round; stroke-linejoin: round; }
+.atout-panel h3 { font: 700 1.7rem "Playfair Display", serif; margin-bottom: 10px; }
+.atout-panel p { color: var(--texte); max-width: 36em; }
+.atout-tags { list-style: none; display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; }
+.atout-tags li { font: 0.78rem "JetBrains Mono", monospace; color: var(--vert); border: 1px solid var(--bordure); border-radius: 4px; padding: 3px 9px; }
+.atout-tags li::before { content: "#"; opacity: 0.6; }
+
+.atouts-progress { height: 2px; background: rgba(52, 211, 153, 0.08); }
+.atouts-progress span { display: block; height: 100%; background: var(--vert); transform: scaleX(0); transform-origin: left; }
+
+@media (max-width: 768px) {
+  .atouts-inner { grid-template-columns: 1fr; }
+  .atouts-list { flex-direction: row; overflow-x: auto; border-right: 0; border-bottom: 1px solid var(--bordure); scrollbar-width: none; }
+  .atout-tab { white-space: nowrap; flex: none; }
+  .atout-tab[aria-selected="true"]::after { content: none; }
+  .atouts-screen { padding: 20px; }
+  .atout-out { grid-template-columns: 1fr; gap: 16px; }
+  .atout-icon { width: 60px; height: 60px; }
+  .atout-icon svg { width: 30px; height: 30px; }
+  .atout-cmd { font-size: 0.75rem; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .atout-cmd.tape, .atout-out { animation: none; }
+}
+
+/* ----- Bandeaux de logos : défilent en continu, rien n'est cliquable ----- */
+.marquee { pointer-events: none; user-select: none; }
+.marquee:hover .marquee-track { animation-play-state: running; }
+.marquee-track li:hover { transform: none; box-shadow: 0 5px 0 #050b08; border-color: #23372d; }
+.marquee-track img { -webkit-user-drag: none; }
+@media (max-width: 768px) { #hero-canvas { opacity: 0.55; } }
