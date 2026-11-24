@@ -246,13 +246,41 @@ document.querySelectorAll(".filter").forEach((btn) => {
   });
 });
 
-// ===== Formulaire : ouvre la messagerie avec le message pré-rempli =====
-document.getElementById("form").addEventListener("submit", (e) => {
+// ===== Formulaire : envoi direct dans la boîte mail via FormSubmit (sans quitter la page) =====
+const ADRESSE = "arthurroux99@gmail.com";
+const formulaire = document.getElementById("form");
+const statut = document.getElementById("form-statut");
+formulaire.addEventListener("submit", async (e) => {
   e.preventDefault();
   const f = e.target;
-  const sujet = encodeURIComponent("Contact portfolio - " + f.nom.value);
-  const corps = encodeURIComponent(f.message.value + "\n\n" + f.nom.value + " (" + f.email.value + ")");
-  window.location.href = `mailto:arthurroux99@gmail.com?subject=${sujet}&body=${corps}`;
+  if (f._honey.value) return; // robot
+  const bouton = f.querySelector("button[type=submit]");
+  bouton.disabled = true;
+  statut.className = "form-statut";
+  statut.textContent = "$ envoi en cours…";
+  try {
+    const rep = await fetch(`https://formsubmit.co/ajax/${ADRESSE}`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json", Accept: "application/json" },
+      body: JSON.stringify({
+        nom: f.nom.value, email: f.email.value, message: f.message.value,
+        _subject: "Contact portfolio - " + f.nom.value, _replyto: f.email.value, _template: "table",
+      }),
+    });
+    const res = await rep.json().catch(() => ({}));
+    if (!rep.ok || String(res.success) !== "true") throw new Error(res.message || "échec");
+    statut.classList.add("ok");
+    statut.textContent = "Message envoyé, merci ! Je vous réponds rapidement.";
+    f.reset();
+  } catch (err) {
+    // Plan B : ouvrir la messagerie du visiteur avec le message pré-rempli
+    statut.classList.add("erreur");
+    const sujet = encodeURIComponent("Contact portfolio - " + f.nom.value);
+    const corps = encodeURIComponent(f.message.value + "\n\n" + f.nom.value + " (" + f.email.value + ")");
+    statut.innerHTML = `L'envoi n'a pas marché. <a href="mailto:${ADRESSE}?subject=${sujet}&body=${corps}">Écrivez-moi directement par mail</a>.`;
+  } finally {
+    bouton.disabled = false;
+  }
 });
 
 document.getElementById("year").textContent = new Date().getFullYear();
