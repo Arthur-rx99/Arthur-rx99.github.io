@@ -886,3 +886,24 @@ body { background: var(--bg); }
 .marquee-track li:hover { transform: none; box-shadow: 0 5px 0 #050b08; border-color: #23372d; }
 .marquee-track img { -webkit-user-drag: none; }
 @media (max-width: 768px) { #hero-canvas { opacity: 0.55; } }
+
+/* ----- Barre du terminal des atouts : style Linux (pas de pastilles Mac) ----- */
+.atouts-bar { justify-content: space-between; gap: 12px; padding: 8px 8px 8px 14px; }
+.bar-icon {
+  padding: 1px 6px;
+  border: 1px solid var(--bordure);
+  border-radius: 4px;
+  font: 600 0.75rem "JetBrains Mono", monospace;
+  color: var(--vert);
+}
+.atouts-bar .bar-title { margin: 0 auto 0 0; }
+.bar-ctrl { display: flex; gap: 2px; }
+.bar-ctrl b {
+  width: 30px; height: 24px;
+  display: grid;
+  place-items: center;
+  border-radius: 4px;
+  font: 400 0.9rem "JetBrains Mono", monospace;
+  color: var(--gris);
+}
+.bar-ctrl b.fermer { color: var(--texte); }
