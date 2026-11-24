@@ -1161,10 +1161,97 @@ kbd {
 .t-cmd:hover, .t-cmd:focus-visible { background: var(--vert-doux); outline: none; }
 .t-guide { display: inline-block; padding: 2px 8px; border-left: 2px solid var(--vert); background: var(--vert-doux); color: var(--titre); }
 
-/* ----- Easter egg : Snake dans le terminal (commande cachée « snake ») ----- */
-.snake { display: grid; justify-items: start; gap: 6px; margin: 4px 0 10px; white-space: normal; }
+/* ----- Easter egg : Snake dans un vieux moniteur (commande cachée « snake ») ----- */
+.crt-scene {
+  position: fixed; inset: 0; z-index: 1100;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
+  padding: 16px;
+  perspective: 1400px;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% 45%, rgba(52, 211, 153, 0.10), transparent 70%),
+    radial-gradient(ellipse at 50% 40%, #0f1814 0%, #050807 60%, #020303 100%);
+  animation: crt-fondu 0.35s ease-out both;
+  overflow: hidden;
+}
+.crt-cadre { display: flex; flex-direction: column; align-items: center; width: min(860px, 94vw, 112vh); transform-origin: 50% 45%; animation: crt-approche 1.4s cubic-bezier(0.22, 0.7, 0.2, 1) both; }
+.crt {
+  position: relative; width: 100%;
+  padding: 4.5% 4.5% 2%;
+  border-radius: 26px 26px 20px 20px;
+  background: linear-gradient(180deg, #2b2f2c 0%, #1d201e 55%, #151816 100%);
+  box-shadow:
+    inset 0 2px 0 rgba(255, 255, 255, 0.08),
+    inset 0 -6px 14px rgba(0, 0, 0, 0.55),
+    0 40px 80px rgba(0, 0, 0, 0.7),
+    0 0 120px rgba(52, 211, 153, 0.08);
+}
+/* l'écran bombé, avec son cadre noir intérieur */
+.crt-ecran {
+  position: relative;
+  aspect-ratio: 4 / 3;
+  border-radius: 7% / 9%;
+  padding: 2.2%;
+  background: #0b0d0c;
+  box-shadow: inset 0 0 0 2px #050606, inset 0 4px 18px rgba(0, 0, 0, 0.9);
+}
+.crt-contenu {
+  position: relative; height: 100%;
+  border-radius: 6% / 8%;
+  overflow: hidden;
+  display: grid; place-items: center;
+  font-family: "JetBrains Mono", monospace;
+  color: var(--texte);
+  background: radial-gradient(ellipse at 50% 45%, #0d2018 0%, #07120d 65%, #030806 100%);
+  box-shadow: inset 0 0 70px rgba(0, 0, 0, 0.85), inset 0 0 14px rgba(52, 211, 153, 0.18);
+  text-shadow: 0 0 6px rgba(52, 211, 153, 0.45);
+  animation: crt-allumage 0.55s 1.25s ease-out both, crt-scintille 4s 2s infinite;
+}
+/* lignes de balayage + reflet de la vitre */
+.crt-contenu::before, .crt-contenu::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; }
+.crt-contenu::before { background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px); z-index: 2; }
+.crt-contenu::after {
+  z-index: 3;
+  background:
+    radial-gradient(ellipse 70% 45% at 28% 12%, rgba(255, 255, 255, 0.07), transparent 60%),
+    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+}
+.crt-facade { display: flex; align-items: center; justify-content: space-between; padding: 2.2% 3% 0; }
+.crt-marque { font: 600 clamp(9px, 1.4vw, 12px) "JetBrains Mono", monospace; letter-spacing: 3px; color: #6b736e; }
+.crt-led { width: 8px; height: 8px; border-radius: 50%; background: var(--vert); box-shadow: 0 0 8px var(--vert); animation: crt-led 0.3s 1.2s both; }
+.crt-pied { width: 34%; height: clamp(18px, 3.5vw, 34px); background: linear-gradient(180deg, #121513, #1d201e); clip-path: polygon(14% 0, 86% 0, 100% 100%, 0 100%); }
+.crt-pied::after { content: ""; display: block; width: 160%; height: 14px; margin: clamp(18px, 3.5vw, 34px) 0 0 -30%; border-radius: 50%; background: radial-gradient(ellipse, rgba(0, 0, 0, 0.6), transparent 70%); }
+
+@keyframes crt-fondu { from { opacity: 0; } }
+@keyframes crt-disparait { to { opacity: 0; } }
+@keyframes crt-approche {
+  0% { transform: translateY(22vh) scale(0.3) rotateX(10deg); filter: brightness(0.45) blur(1px); }
+  70% { filter: brightness(0.8); }
+  100% { transform: none; filter: none; }
+}
+@keyframes crt-allumage {
+  0% { transform: scale(0, 0.004); filter: brightness(4); opacity: 1; }
+  35% { transform: scale(1, 0.004); filter: brightness(4); }
+  100% { transform: none; filter: none; }
+}
+@keyframes crt-scintille { 0%, 100% { opacity: 1; } 50% { opacity: 0.96; } }
+@keyframes crt-led { from { background: #1d2a23; box-shadow: none; } }
+@keyframes crt-eteint { 0% { transform: none; } 45% { transform: scale(1, 0.004); filter: brightness(3); } 100% { transform: scale(0, 0.004); filter: brightness(3); } }
+@keyframes crt-recul { to { transform: translateY(22vh) scale(0.3) rotateX(10deg); opacity: 0; } }
+/* sortie : l'écran s'éteint, puis on recule */
+.crt-scene.crt-depart { animation: crt-disparait 0.3s 0.4s ease-in both; pointer-events: none; }
+.crt-scene.crt-depart .crt-cadre { animation: crt-recul 0.45s 0.25s ease-in both; }
+.crt-scene.crt-depart .crt-contenu { animation: crt-eteint 0.3s ease-in both; }
+.crt-scene.crt-depart .crt-led { animation: none; background: #1d2a23; box-shadow: none; }
+/* touche pressée pendant l'arrivée : on saute directement à la fin */
+.crt-pret .crt-cadre, .crt-pret .crt-contenu, .crt-pret .crt-led, .crt-pret { animation-duration: 0s; animation-delay: 0s; }
+.crt-pret .crt-contenu { animation: crt-scintille 4s infinite; }
+@media (prefers-reduced-motion: reduce) {
+  .crt-scene, .crt-cadre, .crt-contenu, .crt-led { animation: none !important; }
+}
+
+.snake { display: grid; justify-items: center; gap: 0.5em; white-space: normal; position: relative; z-index: 1; }
 .snake-info, .snake-aide { white-space: pre; }
-.snake-aide { color: var(--gris); font-size: 0.78rem; }
+.snake-aide { color: var(--gris); font-size: 0.8em; }
 .snake-grille {
   position: relative;
   margin: 0;
@@ -1188,12 +1275,13 @@ kbd {
   display: grid; place-content: center; gap: 4px;
   text-align: center;
 }
-.snake-msg b { color: var(--titre); font-size: 1.1rem; letter-spacing: 3px; padding: 2px 12px; background: #070d0a; }
-.snake-msg small { color: var(--gris); font-size: 0.75rem; background: #070d0a; padding: 0 8px; }
+.snake-msg b { color: var(--titre); font-size: 1.3em; letter-spacing: 3px; padding: 2px 12px; background: #07120d; }
+.snake-msg small { color: var(--gris); font-size: 0.8em; background: #07120d; padding: 0 8px; }
 .snake-pad {
-  display: grid; grid-template-columns: repeat(3, 52px); grid-auto-rows: 42px; gap: 6px;
-  justify-self: center; margin-top: 4px;
+  display: grid; grid-template-columns: repeat(3, 56px); grid-auto-rows: 46px; gap: 8px;
+  animation: crt-fondu 0.4s 1.4s both;
 }
+.crt-scene.crt-depart .snake-pad { animation: none; opacity: 0; }
 .snake-pad button {
   border: 1px solid var(--bordure); border-radius: 8px;
   background: #0c1712; color: var(--vert);

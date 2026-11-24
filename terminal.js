@@ -222,24 +222,22 @@
   const ecrireRecord = (n) => { try { localStorage.setItem(RECORD, n); } catch {} };
   const tactile = matchMedia("(pointer: coarse)").matches;
 
-  function lancerSnake() {
-    // Taille de la grille selon la place dispo (1 case = 2 caractères, pour qu'elle soit carrée)
-    const mesure = document.createElement("span");
-    mesure.textContent = "MMMMMMMMMM";
-    sortie.appendChild(mesure);
-    const cw = mesure.getBoundingClientRect().width / 10;
-    const fs = parseFloat(getComputedStyle(sortie).fontSize) || 14;
-    mesure.remove();
-    const limite = (n, min, max) => Math.max(min, Math.min(max, n));
-    const cols = limite(Math.floor((sortie.clientWidth - 50) / cw / 2), 10, 22);
-    // hauteur dispo − marges − 3 lignes de texte (score, aide) − pad tactile, puis − 2 pour les bords
-    const libre = sortie.clientHeight - 30 - 3 * fs * 1.6 - (tactile ? 160 : 0);
-    const rows = limite(Math.floor(libre / (fs * 1.15)) - 1, 8, 16);
+  const reduit = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
-    const el = document.createElement("div");
-    el.className = "snake";
-    el.innerHTML = `<div class="snake-info"></div><pre class="snake-grille" aria-label="Jeu Snake"></pre>
-      <div class="snake-aide">${tactile ? "glisse sur la grille ou utilise les flèches" : "← ↑ → ↓ ou ZQSD · espace pause · échap quitter"}</div>
+  function lancerSnake() {
+    // La scène : on s'approche d'un vieux moniteur cathodique, l'écran s'allume, le Snake se lance dedans
+    const scene = document.createElement("div");
+    scene.className = "crt-scene";
+    scene.setAttribute("role", "dialog");
+    scene.setAttribute("aria-label", "Jeu Snake");
+    scene.innerHTML = `
+      <div class="crt-cadre">
+        <div class="crt">
+          <div class="crt-ecran"><div class="crt-contenu"></div></div>
+          <div class="crt-facade"><span class="crt-marque">AR-80</span><span class="crt-led" aria-hidden="true"></span></div>
+        </div>
+        <div class="crt-pied" aria-hidden="true"></div>
+      </div>
       ${tactile ? `<div class="snake-pad">
         <button type="button" data-dir="haut" aria-label="Haut">▲</button>
         <button type="button" data-dir="gauche" aria-label="Gauche">◀</button>
@@ -248,15 +246,34 @@
         <button type="button" data-dir="bas" aria-label="Bas">▼</button>
         <button type="button" data-action="quitter" class="snake-quitter" aria-label="Quitter">✕</button>
       </div>` : ""}`;
-    sortie.appendChild(el);
-    form.hidden = true;
+    document.body.appendChild(scene);
     saisie.blur();
+
+    // Taille de la grille selon la taille de l'écran du moniteur (1 case = 2 caractères, pour qu'elle soit carrée)
+    const ecran = scene.querySelector(".crt-contenu");
+    const limite = (n, min, max) => Math.max(min, Math.min(max, n));
+    const W = ecran.clientWidth, H = ecran.clientHeight;
+    const fs = limite(Math.round(W / 44), 10, 17);
+    ecran.style.fontSize = fs + "px";
+    const mesure = document.createElement("span");
+    mesure.textContent = "MMMMMMMMMM";
+    ecran.appendChild(mesure);
+    const cw = mesure.offsetWidth / 10;
+    mesure.remove();
+    const cols = limite(Math.floor((W - 24) / cw / 2), 10, 28);
+    const rows = limite(Math.floor((H - 2 * fs * 1.6 - 30) / (fs * 1.15)), 8, 20);
+
+    const el = document.createElement("div");
+    el.className = "snake";
+    el.innerHTML = `<div class="snake-info"></div><pre class="snake-grille" aria-label="Grille du Snake"></pre>
+      <div class="snake-aide">${tactile ? "glisse sur l'écran ou utilise les flèches" : "← ↑ → ↓ ou ZQSD · espace pause · échap quitter"}</div>`;
+    ecran.appendChild(el);
 
     const DIRS = { haut: [0, -1], bas: [0, 1], gauche: [-1, 0], droite: [1, 0] };
     const info = el.querySelector(".snake-info");
     const grille = el.querySelector(".snake-grille");
 
-    jeu = { el, cols, rows, record: lireRecord() };
+    jeu = { el: scene, cols, rows, record: lireRecord(), intro: true };
     const nouvellePartie = () => {
       const x = Math.floor(cols / 2), y = Math.floor(rows / 2);
       Object.assign(jeu, {
@@ -266,7 +283,7 @@
       });
       placerPomme();
       dessiner();
-      relancer();
+      if (!jeu.intro) relancer();
     };
     const placerPomme = () => {
       const libres = [];
@@ -313,7 +330,6 @@
       grille.classList.toggle("snake-voile", !!msg);
       if (msg) grille.insertAdjacentHTML("beforeend", `<span class="snake-msg">${msg.map((m, i) => i ? `<small>${m}</small>` : `<b>${m}</b>`).join("")}</span>`);
       info.innerHTML = `${v("snake")} ${g("·")} score ${v(String(jeu.score).padStart(3, "0"))} ${g("·")} record ${v(String(jeu.record).padStart(3, "0"))}`;
-      sortie.scrollTop = sortie.scrollHeight;
     }
 
     // Changement de direction (on refuse le demi-tour sur soi-même)
@@ -332,12 +348,23 @@
       dessiner();
     };
     jeu.rejouer = nouvellePartie;
+    // Fin de l'animation d'approche (ou on la passe en appuyant sur une touche / en cliquant)
+    jeu.finIntro = () => {
+      if (!jeu || !jeu.intro) return;
+      jeu.intro = false;
+      clearTimeout(jeu.introTimer);
+      scene.classList.add("crt-pret");
+      relancer();
+    };
+    jeu.introTimer = setTimeout(jeu.finIntro, reduit ? 0 : 1900);
+    scene.addEventListener("pointerdown", () => jeu && jeu.finIntro());
 
     // Tactile : glisser sur la grille, ou les boutons du pad
     let depart = null;
-    grille.addEventListener("touchstart", (e) => { depart = [e.touches[0].clientX, e.touches[0].clientY]; }, { passive: true });
-    grille.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
-    grille.addEventListener("touchend", (e) => {
+    const zone = ecran;
+    zone.addEventListener("touchstart", (e) => { depart = [e.touches[0].clientX, e.touches[0].clientY]; }, { passive: true });
+    zone.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
+    zone.addEventListener("touchend", (e) => {
       if (!depart) return;
       const dx = e.changedTouches[0].clientX - depart[0], dy = e.changedTouches[0].clientY - depart[1];
       depart = null;
@@ -345,7 +372,7 @@
       jeu.tourner(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "droite" : "gauche") : (dy > 0 ? "bas" : "haut"));
     });
     grille.addEventListener("click", () => { if (!tactile && jeu.etat === "fin") nouvellePartie(); });
-    el.querySelectorAll(".snake-pad button").forEach((b) => b.addEventListener("pointerdown", (e) => {
+    scene.querySelectorAll(".snake-pad button").forEach((b) => b.addEventListener("pointerdown", (e) => {
       e.preventDefault();
       if (b.dataset.dir) jeu.tourner(b.dataset.dir);
       else if (b.dataset.action === "pause") jeu.pause();
@@ -355,17 +382,19 @@
     nouvellePartie();
   }
 
-  function quitterSnake() {
+  function quitterSnake(immediat = false) {
     if (!jeu) return;
     clearInterval(jeu.timer);
+    clearTimeout(jeu.introTimer);
     if (jeu.score > jeu.record) { jeu.record = jeu.score; ecrireRecord(jeu.score); } // si on quitte en pleine partie
     const { el, score, record, flag } = jeu;
     jeu = null;
-    el.remove();
+    // L'écran s'éteint, on recule, puis on retrouve le terminal
+    if (immediat || reduit) el.remove();
+    else { el.classList.add("crt-depart"); setTimeout(() => el.remove(), 700); }
     afficher([`${g("snake terminé ·")} score ${v(score)} ${g("·")} record ${v(record)}`]);
     if (flag) afficher([`🚩 10 points, bien joué ! Voici ton flag : ${v(atob("RkxBR3tzbjRrM19tNHN0M3J9"))}`, g("Valide-le avec ") + v("submit") + g(" suivi du flag.")]);
     afficher([""]);
-    form.hidden = false;
     if (!fenetre.hidden) saisie.focus();
   }
 
@@ -376,6 +405,7 @@
   };
   document.addEventListener("keydown", (e) => {
     if (!jeu || e.ctrlKey || e.metaKey || e.altKey) return;
+    if (jeu.intro && e.key !== "Escape" && e.key !== "q") { jeu.finIntro(); if (!(TOUCHES[e.key] || TOUCHES[e.code])) { e.preventDefault(); return; } }
     const dir = TOUCHES[e.key] || TOUCHES[e.code];
     if (dir) jeu.tourner(dir);
     else if (e.key === " " || e.key === "p") jeu.pause();
@@ -453,7 +483,7 @@
     setTimeout(() => saisie.focus(), 30);
   }
   function fermer() {
-    quitterSnake();
+    quitterSnake(true);
     fenetre.hidden = true;
     document.body.classList.remove("term-actif");
     btn.setAttribute("aria-expanded", "false");
