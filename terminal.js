@@ -64,9 +64,9 @@
   };
   const PROJETS = [
     ["lab-cyber", "Lab de cybersécurité (Kali, Nmap, Metasploit)", "https://github.com/Arthur-rx99/lab-pentest-kali"],
-    ["restauration", "Portfolio restauration", "https://arthur-rx99.github.io/projets-web/restauration/"],
-    ["curry", "Site Stephen Curry · Biographie", "https://arthur-rx99.github.io/projets-web/stephen-curry/"],
-    ["chez-bun", "Chez Bun (burgers)", "https://arthur-rx99.github.io/projets-web/chez-bun/"],
+    ["restauration", "Portfolio restauration", "https://arthur-rx99.github.io/projets/restauration/"],
+    ["curry", "Site Stephen Curry · Biographie", "https://arthur-rx99.github.io/projets/stephen-curry/"],
+    ["chez-bun", "Chez Bun (burgers)", "https://arthur-rx99.github.io/projets/chez-bun/"],
   ];
   const SECTIONS = { accueil: "accueil", apropos: "apropos", about: "apropos", competences: "competences", projets: "projets", parcours: "parcours", loisirs: "loisirs", contact: "contact" };
 
