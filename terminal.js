@@ -11,7 +11,7 @@
   let pos = 0;
   let premiereFois = true;
 
-  const esc = (t) => t.replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" }[c]));
+  const esc = (t) => String(t).replace(/[&<>"']/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
   const lien = (url, texte) => `<a href="${url}" target="_blank" rel="noopener">${texte}</a>`;
   const v = (t) => `<span class="t-vert">${t}</span>`;
   const g = (t) => `<span class="t-gris">${t}</span>`;
@@ -250,6 +250,12 @@
     "|___/_|\\_/_/ \\_\\_|\\_\\___|",
   ].join("\n");
 
+  // Le flag du Snake n'est pas écrit en clair (ni en base64) : il est reconstruit à partir
+  // du nombre de pommes et du titre ASCII. Pas impossible à retrouver en lisant le code, mais plus un simple Ctrl+F.
+  const SNAKE_OCTETS = [80, 43, 57, 14, 94, 88, 46, 121, 9, 92, 96, 51, 105, 63, 15, 89, 107, 5];
+  const flagSnake = (n) => String.fromCharCode(...SNAKE_OCTETS.map((b, i) =>
+    b ^ TITRE.charCodeAt((i * 7 + n) % TITRE.length) ^ ((n * 31 + i * 17) & 0x7f)));
+
   function lancerSnake() {
     // La scène : on s'approche d'un bureau avec un vieux moniteur, l'écran s'allume, le Snake se lance dedans
     const scene = document.createElement("div");
@@ -368,7 +374,7 @@
       canvas.dataset.tete = tete.join(",");
       if (mange) {
         jeu.score++;
-        if (jeu.score >= 10) jeu.flag = true;
+        if (jeu.score >= 10) jeu.flag = true; // 10 pommes = flag
         eclater(jeu.pomme);
         placerPomme();
         afficherHud(true);
@@ -561,7 +567,7 @@
     if (immediat || reduit) el.remove();
     else { el.classList.add("crt-depart"); setTimeout(() => el.remove(), 750); }
     afficher([`${g("snake terminé ·")} score ${v(score)} ${g("·")} record ${v(record)}`]);
-    if (flag) afficher([`🚩 10 points, bien joué ! Voici ton flag : ${v(atob("RkxBR3tzbjRrM19tNHN0M3J9"))}`, g("Valide-le avec ") + v("submit") + g(" suivi du flag.")]);
+    if (flag) afficher([`🚩 10 points, bien joué ! Voici ton flag : ${v(esc(flagSnake(10)))}`, g("Valide-le avec ") + v("submit") + g(" suivi du flag.")]);
     afficher([""]);
     if (!fenetre.hidden) saisie.focus();
   }
