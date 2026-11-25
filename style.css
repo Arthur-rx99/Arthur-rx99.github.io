@@ -1161,127 +1161,221 @@ kbd {
 .t-cmd:hover, .t-cmd:focus-visible { background: var(--vert-doux); outline: none; }
 .t-guide { display: inline-block; padding: 2px 8px; border-left: 2px solid var(--vert); background: var(--vert-doux); color: var(--titre); }
 
-/* ----- Easter egg : Snake dans un vieux moniteur (commande cachée « snake ») ----- */
+/* ----- Easter egg : Snake sur un vieux moniteur posé sur un bureau (commande cachée « snake ») ----- */
 .crt-scene {
   position: fixed; inset: 0; z-index: 1100;
   display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 18px;
   padding: 16px;
-  perspective: 1400px;
-  background:
-    radial-gradient(ellipse 60% 50% at 50% 45%, rgba(52, 211, 153, 0.10), transparent 70%),
-    radial-gradient(ellipse at 50% 40%, #0f1814 0%, #050807 60%, #020303 100%);
-  animation: crt-fondu 0.35s ease-out both;
   overflow: hidden;
+  background:
+    radial-gradient(ellipse 55% 45% at 50% 40%, rgba(52, 211, 153, 0.13), transparent 70%),
+    linear-gradient(180deg, #070b09 0%, #0b120f 55%, #050807 100%);
+  animation: crt-fondu 0.35s ease-out both;
 }
-.crt-cadre { display: flex; flex-direction: column; align-items: center; width: min(860px, 94vw, 112vh); transform-origin: 50% 45%; animation: crt-approche 1.4s cubic-bezier(0.22, 0.7, 0.2, 1) both; }
+/* le bureau : un plan sombre, éclairé en vert par l'écran */
+.crt-scene::before {
+  content: ""; position: absolute; left: -10%; right: -10%; bottom: 0; height: 36%;
+  background:
+    radial-gradient(ellipse 40% 60% at 50% 0%, rgba(52, 211, 153, 0.12), transparent 70%),
+    linear-gradient(180deg, #141c18 0%, #0c120f 40%, #070a08 100%);
+  border-top: 1px solid rgba(255, 255, 255, 0.05);
+  box-shadow: 0 -1px 0 rgba(0, 0, 0, 0.6);
+}
+.crt-tactile::before { height: 46%; }
+.crt-monde {
+  position: relative;
+  display: flex; flex-direction: column; align-items: center;
+  width: min(780px, 92vw, 80vh);
+  transform-origin: 50% 42%;
+  animation: crt-approche 1.5s cubic-bezier(0.22, 0.7, 0.2, 1) both;
+}
+.crt-tactile .crt-monde { width: min(780px, 94vw, 70vh); }
+.crt-cadre { position: relative; width: 100%; display: flex; flex-direction: column; align-items: center; }
+
+/* la coque du moniteur : plastique sombre, relief, vis et grille d'aération */
 .crt {
   position: relative; width: 100%;
-  padding: 4.5% 4.5% 2%;
-  border-radius: 26px 26px 20px 20px;
-  background: linear-gradient(180deg, #2b2f2c 0%, #1d201e 55%, #151816 100%);
+  padding: 5.2% 5% 2.4%;
+  border-radius: 30px 30px 22px 22px;
+  background: linear-gradient(180deg, #343a36 0%, #262b28 38%, #1c201e 100%);
   box-shadow:
-    inset 0 2px 0 rgba(255, 255, 255, 0.08),
-    inset 0 -6px 14px rgba(0, 0, 0, 0.55),
-    0 40px 80px rgba(0, 0, 0, 0.7),
-    0 0 120px rgba(52, 211, 153, 0.08);
+    inset 0 2px 0 rgba(255, 255, 255, 0.13),
+    inset 3px 0 6px rgba(255, 255, 255, 0.03),
+    inset -3px 0 6px rgba(0, 0, 0, 0.3),
+    inset 0 -12px 22px rgba(0, 0, 0, 0.6),
+    0 60px 90px rgba(0, 0, 0, 0.75),
+    0 0 160px rgba(52, 211, 153, 0.10);
 }
-/* l'écran bombé, avec son cadre noir intérieur */
+/* le dos bombé du tube, qui dépasse au-dessus */
+.crt::before {
+  content: ""; position: absolute; z-index: -1;
+  top: -5.5%; left: 16%; right: 16%; height: 14%;
+  border-radius: 40% 40% 0 0 / 100% 100% 0 0;
+  background: linear-gradient(180deg, #2a2f2c, #1f2321);
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.07);
+}
+/* grain du plastique */
+.crt::after {
+  content: ""; position: absolute; inset: 0; border-radius: inherit; pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/%3E%3C/svg%3E");
+  opacity: 0.07; mix-blend-mode: overlay;
+}
+.crt-vis { position: absolute; width: 8px; height: 8px; border-radius: 50%; background: radial-gradient(circle at 35% 35%, #6a716c, #1b1e1c 70%); box-shadow: 0 1px 1px rgba(0, 0, 0, 0.6); }
+.crt-vis::after { content: ""; position: absolute; left: 1px; right: 1px; top: 50%; height: 1px; background: rgba(0, 0, 0, 0.6); transform: rotate(35deg); }
+.crt-aeration {
+  position: absolute; top: 1.9%; left: 32%; right: 32%; height: 1.4%;
+  background: repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.6) 0 3px, transparent 3px 8px);
+  border-radius: 2px;
+}
+
+/* le cadre noir enfoncé autour de la vitre */
 .crt-ecran {
   position: relative;
   aspect-ratio: 4 / 3;
   border-radius: 7% / 9%;
-  padding: 2.2%;
-  background: #0b0d0c;
-  box-shadow: inset 0 0 0 2px #050606, inset 0 4px 18px rgba(0, 0, 0, 0.9);
+  padding: 2.6%;
+  background: linear-gradient(165deg, #090b0a 0%, #141715 100%);
+  box-shadow: inset 0 4px 8px rgba(0, 0, 0, 0.95), inset 0 -2px 0 rgba(255, 255, 255, 0.06), 0 1px 0 rgba(255, 255, 255, 0.06);
 }
+/* la vitre bombée */
 .crt-contenu {
   position: relative; height: 100%;
   border-radius: 6% / 8%;
   overflow: hidden;
-  display: grid; place-items: center;
+  display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
+  padding: 3.5%;
   font-family: "JetBrains Mono", monospace;
   color: var(--texte);
-  background: radial-gradient(ellipse at 50% 45%, #0d2018 0%, #07120d 65%, #030806 100%);
-  box-shadow: inset 0 0 70px rgba(0, 0, 0, 0.85), inset 0 0 14px rgba(52, 211, 153, 0.18);
-  text-shadow: 0 0 6px rgba(52, 211, 153, 0.45);
-  animation: crt-allumage 0.55s 1.25s ease-out both, crt-scintille 4s 2s infinite;
+  background: radial-gradient(ellipse at 50% 45%, #0d241a 0%, #07130d 60%, #030806 100%);
+  box-shadow: inset 0 0 90px rgba(0, 0, 0, 0.9), inset 0 0 18px rgba(52, 211, 153, 0.22);
+  /* lueur du phosphore + léger décalage rouge / bleu des vieux tubes */
+  text-shadow: 0 0 6px rgba(52, 211, 153, 0.55), -1px 0 rgba(255, 70, 100, 0.16), 1px 0 rgba(70, 180, 255, 0.16);
+  animation: crt-allumage 0.6s 1.3s ease-out both, crt-scintille 4s 2.2s infinite;
 }
-/* lignes de balayage + reflet de la vitre */
-.crt-contenu::before, .crt-contenu::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; }
-.crt-contenu::before { background: repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px); z-index: 2; }
-.crt-contenu::after {
-  z-index: 3;
+/* lignes de balayage + bande lumineuse qui descend lentement */
+.crt-contenu::before, .crt-contenu::after { content: ""; position: absolute; inset: 0; pointer-events: none; border-radius: inherit; z-index: 3; }
+.crt-contenu::before {
   background:
-    radial-gradient(ellipse 70% 45% at 28% 12%, rgba(255, 255, 255, 0.07), transparent 60%),
-    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.55) 100%);
+    linear-gradient(180deg, transparent 0%, rgba(52, 211, 153, 0.07) 50%, transparent 100%) 0 -40% / 100% 22% no-repeat,
+    repeating-linear-gradient(180deg, rgba(0, 0, 0, 0.28) 0 1px, transparent 1px 3px);
+  animation: crt-bande 7s linear infinite;
 }
-.crt-facade { display: flex; align-items: center; justify-content: space-between; padding: 2.2% 3% 0; }
-.crt-marque { font: 600 clamp(9px, 1.4vw, 12px) "JetBrains Mono", monospace; letter-spacing: 3px; color: #6b736e; }
-.crt-led { width: 8px; height: 8px; border-radius: 50%; background: var(--vert); box-shadow: 0 0 8px var(--vert); animation: crt-led 0.3s 1.2s both; }
-.crt-pied { width: 34%; height: clamp(18px, 3.5vw, 34px); background: linear-gradient(180deg, #121513, #1d201e); clip-path: polygon(14% 0, 86% 0, 100% 100%, 0 100%); }
-.crt-pied::after { content: ""; display: block; width: 160%; height: 14px; margin: clamp(18px, 3.5vw, 34px) 0 0 -30%; border-radius: 50%; background: radial-gradient(ellipse, rgba(0, 0, 0, 0.6), transparent 70%); }
+/* reflet de la vitre + coins plus sombres */
+.crt-contenu::after {
+  z-index: 4;
+  background:
+    linear-gradient(115deg, transparent 0 20%, rgba(255, 255, 255, 0.022) 20% 27%, transparent 27%),
+    radial-gradient(ellipse 70% 45% at 28% 12%, rgba(255, 255, 255, 0.07), transparent 60%),
+    radial-gradient(ellipse at center, transparent 55%, rgba(0, 0, 0, 0.6) 100%);
+}
+
+/* façade : marque, molettes, bouton et voyant */
+.crt-facade { display: flex; align-items: center; justify-content: space-between; padding: 2.4% 2.5% 0; }
+.crt-marque { font: 600 clamp(9px, 1.5vw, 13px) "JetBrains Mono", monospace; letter-spacing: 3px; color: #838c86; text-shadow: 0 -1px 0 rgba(0, 0, 0, 0.6); }
+.crt-marque small { display: block; font-size: 0.62em; letter-spacing: 2.5px; color: #4f5853; text-transform: uppercase; }
+.crt-boutons { display: flex; align-items: center; gap: clamp(6px, 1.4vw, 12px); }
+.crt-molette {
+  position: relative; width: clamp(11px, 2.2vw, 18px); aspect-ratio: 1; border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #4e5450, #141615 72%);
+  box-shadow: 0 2px 3px rgba(0, 0, 0, 0.6), inset 0 -1px 0 rgba(0, 0, 0, 0.5);
+  transform: rotate(var(--r));
+}
+.crt-molette::after { content: ""; position: absolute; top: 12%; left: 50%; width: 2px; height: 32%; background: #8f9893; transform: translateX(-50%); border-radius: 1px; }
+.crt-power { width: clamp(16px, 3vw, 26px); height: clamp(8px, 1.4vw, 12px); border-radius: 3px; background: linear-gradient(#2e3330, #141715); box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 2px 3px rgba(0, 0, 0, 0.6); }
+.crt-led { width: 7px; height: 7px; border-radius: 50%; background: var(--vert); box-shadow: 0 0 8px var(--vert); animation: crt-led 0.3s 1.25s both; }
+
+/* le pied */
+.crt-pied { position: relative; width: 30%; height: clamp(14px, 3vw, 28px); background: linear-gradient(180deg, #121513, #212522); clip-path: polygon(16% 0, 84% 0, 100% 100%, 0 100%); }
+.crt-pied::after { content: ""; position: absolute; left: -25%; right: -25%; bottom: 0; height: 30%; background: #1c1f1d; }
+.crt-cadre::after { content: ""; width: 60%; height: 16px; margin-top: -4px; border-radius: 50%; background: radial-gradient(ellipse, rgba(0, 0, 0, 0.7), transparent 70%); }
+
+/* le clavier posé devant (sur ordinateur) */
+.crt-clavier {
+  display: flex; gap: 2.2%;
+  width: 82%; margin-top: 1%;
+  padding: 1.6% 1.8%;
+  border-radius: 10px;
+  background: linear-gradient(180deg, #2d322f, #1b1f1d);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.1), 0 26px 30px rgba(0, 0, 0, 0.6);
+  transform: perspective(700px) rotateX(46deg);
+  transform-origin: 50% 0;
+}
+.kb-principal { flex: 1; display: grid; gap: 4px; }
+.kb-rang { display: flex; gap: 4px; }
+.kb-fleches { width: 17%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px; align-content: end; }
+.kb-t {
+  flex: var(--w) 1 0; height: clamp(9px, 1.9vw, 17px);
+  display: grid; place-items: center;
+  border-radius: 3px;
+  background: linear-gradient(180deg, #3d433f, #2a2f2c);
+  box-shadow: 0 2px 0 #111312, inset 0 1px 0 rgba(255, 255, 255, 0.08);
+  font: 600 clamp(6px, 0.9vw, 9px) "JetBrains Mono", monospace; color: #6d7671;
+  transition: transform 0.08s, background 0.08s, box-shadow 0.08s;
+}
+.kb-t.kb-jeu { color: var(--vert); box-shadow: 0 2px 0 #111312, inset 0 0 0 1px rgba(52, 211, 153, 0.4); }
+.kb-t.appuie { transform: translateY(2px); background: var(--vert); color: #06120c; box-shadow: 0 0 14px rgba(52, 211, 153, 0.8); }
 
 @keyframes crt-fondu { from { opacity: 0; } }
 @keyframes crt-disparait { to { opacity: 0; } }
 @keyframes crt-approche {
-  0% { transform: translateY(22vh) scale(0.3) rotateX(10deg); filter: brightness(0.45) blur(1px); }
-  70% { filter: brightness(0.8); }
+  0% { transform: translateY(16vh) scale(0.34) rotateX(12deg); filter: brightness(0.4) blur(1.5px); }
+  65% { filter: brightness(0.85); }
   100% { transform: none; filter: none; }
 }
 @keyframes crt-allumage {
-  0% { transform: scale(0, 0.004); filter: brightness(4); opacity: 1; }
-  35% { transform: scale(1, 0.004); filter: brightness(4); }
+  0% { transform: scale(0, 0.004); filter: brightness(5); }
+  35% { transform: scale(1, 0.004); filter: brightness(5); }
+  70% { filter: brightness(1.6); }
   100% { transform: none; filter: none; }
 }
-@keyframes crt-scintille { 0%, 100% { opacity: 1; } 50% { opacity: 0.96; } }
+@keyframes crt-scintille { 0%, 100% { opacity: 1; } 47% { opacity: 1; } 50% { opacity: 0.95; } 53% { opacity: 1; } }
+@keyframes crt-bande { to { background-position: 0 140%, 0 0; } }
 @keyframes crt-led { from { background: #1d2a23; box-shadow: none; } }
 @keyframes crt-eteint { 0% { transform: none; } 45% { transform: scale(1, 0.004); filter: brightness(3); } 100% { transform: scale(0, 0.004); filter: brightness(3); } }
-@keyframes crt-recul { to { transform: translateY(22vh) scale(0.3) rotateX(10deg); opacity: 0; } }
+@keyframes crt-recul { to { transform: translateY(16vh) scale(0.34) rotateX(12deg); opacity: 0; } }
+@keyframes secousse { 0%, 100% { transform: none; } 20% { transform: translate(-4px, 2px); } 40% { transform: translate(4px, -2px); } 60% { transform: translate(-3px, -1px); } 80% { transform: translate(2px, 1px); } }
+@keyframes bump { 50% { transform: scale(1.35); } }
+
+/* touche pressée pendant l'arrivée : on saute directement à la fin */
+.crt-pret, .crt-pret .crt-monde, .crt-pret .crt-led { animation-duration: 0s; animation-delay: 0s; }
+.crt-pret .crt-contenu { animation: crt-scintille 4s infinite; }
+.crt-contenu.secousse { animation: secousse 0.3s; }
 /* sortie : l'écran s'éteint, puis on recule */
-.crt-scene.crt-depart { animation: crt-disparait 0.3s 0.4s ease-in both; pointer-events: none; }
-.crt-scene.crt-depart .crt-cadre { animation: crt-recul 0.45s 0.25s ease-in both; }
+.crt-scene.crt-depart { animation: crt-disparait 0.3s 0.45s ease-in both; pointer-events: none; }
+.crt-scene.crt-depart .crt-monde { animation: crt-recul 0.45s 0.25s ease-in both; }
 .crt-scene.crt-depart .crt-contenu { animation: crt-eteint 0.3s ease-in both; }
 .crt-scene.crt-depart .crt-led { animation: none; background: #1d2a23; box-shadow: none; }
-/* touche pressée pendant l'arrivée : on saute directement à la fin */
-.crt-pret .crt-cadre, .crt-pret .crt-contenu, .crt-pret .crt-led, .crt-pret { animation-duration: 0s; animation-delay: 0s; }
-.crt-pret .crt-contenu { animation: crt-scintille 4s infinite; }
+.crt-scene.crt-depart .snake-pad { animation: none; opacity: 0; }
 @media (prefers-reduced-motion: reduce) {
-  .crt-scene, .crt-cadre, .crt-contenu, .crt-led { animation: none !important; }
+  .crt-scene, .crt-monde, .crt-contenu, .crt-contenu::before, .crt-led, .crt-contenu.secousse { animation: none !important; }
 }
 
-.snake { display: grid; justify-items: center; gap: 0.5em; white-space: normal; position: relative; z-index: 1; }
-.snake-info, .snake-aide { white-space: pre; }
-.snake-aide { color: var(--gris); font-size: 0.8em; }
-.snake-grille {
-  position: relative;
-  margin: 0;
-  font: inherit;
-  padding: 4px 6px;
-  border: 1px solid rgba(52, 211, 153, 0.45);
-  border-radius: 4px;
-  line-height: 1.15;
-  touch-action: none;
-  user-select: none;
+/* ----- le jeu, dans l'écran ----- */
+.snake-hud { position: relative; z-index: 1; display: flex; gap: 2em; font-size: 0.9em; letter-spacing: 2px; text-transform: uppercase; color: var(--gris); }
+.snake-hud span:first-child { color: var(--vert); }
+.snake-hud b { display: inline-block; color: var(--titre); font-weight: 600; }
+.snake-hud b.bump { animation: bump 0.25s; color: var(--vert); }
+.snake-canvas { position: relative; z-index: 1; display: block; border-radius: 4px; box-shadow: 0 0 0 1px rgba(52, 211, 153, 0.35), 0 0 18px rgba(52, 211, 153, 0.12); }
+.snake-aide { position: relative; z-index: 1; color: var(--gris); font-size: 0.75em; white-space: nowrap; }
+.snake-ecran-msg {
+  position: absolute; inset: 0; z-index: 2;
+  display: grid; place-content: center; justify-items: center; gap: 0.6em;
+  text-align: center; pointer-events: none;
+  opacity: 0; transition: opacity 0.2s;
 }
-/* chaque case fait 2 caractères de large, quelle que soit la police des blocs ▓ █ */
-.snake-grille > span:not(.snake-msg) { display: inline-block; width: 2ch; overflow: hidden; vertical-align: top; text-align: center; }
-.snake-vide { color: rgba(142, 165, 154, 0.18); }
-.snake-corps { color: var(--vert-fonce); }
-.snake-tete { color: var(--vert); text-shadow: 0 0 8px rgba(52, 211, 153, 0.6); }
-.snake-pomme { color: #e5534b; font-weight: 600; }
-.snake-voile .snake-corps, .snake-voile .snake-tete, .snake-voile .snake-pomme { opacity: 0.35; }
-.snake-msg {
-  position: absolute; inset: 0;
-  display: grid; place-content: center; gap: 4px;
-  text-align: center;
-}
-.snake-msg b { color: var(--titre); font-size: 1.3em; letter-spacing: 3px; padding: 2px 12px; background: #07120d; }
-.snake-msg small { color: var(--gris); font-size: 0.8em; background: #07120d; padding: 0 8px; }
+.snake-ecran-msg.visible { opacity: 1; background: radial-gradient(ellipse at center, rgba(3, 9, 6, 0.82) 0%, rgba(3, 9, 6, 0.55) 60%, transparent 85%); }
+.snake-ecran-msg b { color: var(--titre); font-size: 1.8em; letter-spacing: 6px; text-shadow: 0 0 12px rgba(52, 211, 153, 0.8); }
+.snake-ecran-msg small { color: var(--gris); font-size: 0.8em; }
+.snake-ecran-msg p { color: var(--vert); font-size: 0.9em; }
+.snake-titre { margin: 0; font: 600 1.25em/1 "JetBrains Mono", monospace; color: var(--vert); text-shadow: 0 0 10px rgba(52, 211, 153, 0.9), 0 0 24px rgba(52, 211, 153, 0.4); }
+.snake-clignote { animation: clignote 1.1s steps(1) infinite; }
+
+/* pad tactile (mobile) */
 .snake-pad {
+  position: relative;
   display: grid; grid-template-columns: repeat(3, 56px); grid-auto-rows: 46px; gap: 8px;
   animation: crt-fondu 0.4s 1.4s both;
 }
-.crt-scene.crt-depart .snake-pad { animation: none; opacity: 0; }
 .snake-pad button {
   border: 1px solid var(--bordure); border-radius: 8px;
   background: #0c1712; color: var(--vert);

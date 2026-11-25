@@ -215,28 +215,72 @@
   };
   const NOMS = Object.keys(COMMANDES).filter((n) => !["sudo", "nmap", "hack", "rm", "snake"].includes(n));
 
-  // ----- Easter egg : un Snake en ASCII, joué directement dans le terminal -----
+  // ----- Easter egg : un Snake joué sur un vieux moniteur cathodique -----
   let jeu = null; // partie en cours (null = pas de jeu)
   const RECORD = "snake-record";
   const lireRecord = () => { try { return +localStorage.getItem(RECORD) || 0; } catch { return 0; } };
   const ecrireRecord = (n) => { try { localStorage.setItem(RECORD, n); } catch {} };
   const tactile = matchMedia("(pointer: coarse)").matches;
-
   const reduit = matchMedia("(prefers-reduced-motion: reduce)").matches;
 
+  // Le clavier posé devant l'écran : [code de la touche, largeur, étiquette]
+  // Les touches du jeu (ZQSD et flèches) sont marquées, et s'allument quand on appuie dessus
+  const RANGEES = [
+    [["Backquote"], ["Digit1"], ["Digit2"], ["Digit3"], ["Digit4"], ["Digit5"], ["Digit6"], ["Digit7"], ["Digit8"], ["Digit9"], ["Digit0"], ["Minus"], ["Equal"], ["Backspace", 2]],
+    [["Tab", 1.5], ["KeyQ"], ["KeyW", 1, "Z"], ["KeyE"], ["KeyR"], ["KeyT"], ["KeyY"], ["KeyU"], ["KeyI"], ["KeyO"], ["KeyP"], ["BracketLeft"], ["BracketRight"], ["Enter", 1.5]],
+    [["CapsLock", 1.75], ["KeyA", 1, "Q"], ["KeyS", 1, "S"], ["KeyD", 1, "D"], ["KeyF"], ["KeyG"], ["KeyH"], ["KeyJ"], ["KeyK"], ["KeyL"], ["Semicolon"], ["Quote"], ["Backslash", 2.25]],
+    [["ShiftLeft", 2.25], ["KeyZ"], ["KeyX"], ["KeyC"], ["KeyV"], ["KeyB"], ["KeyN"], ["KeyM"], ["Comma"], ["Period"], ["Slash"], ["ShiftRight", 2.75]],
+    [["ControlLeft", 1.5], ["MetaLeft", 1.25], ["AltLeft", 1.25], ["Space", 6.25], ["AltRight", 1.25], ["ContextMenu", 1.25], ["ControlRight", 1.5]],
+  ];
+  const JEU_TOUCHES = ["KeyW", "KeyA", "KeyS", "KeyD", "Space", "Escape"];
+  const touche = ([code, w = 1, txt = ""]) =>
+    `<span class="kb-t${JEU_TOUCHES.includes(code) || txt ? " kb-jeu" : ""}" data-k="${code}" style="--w:${w}">${txt}</span>`;
+  const clavierHTML = () => `
+    <div class="kb-principal">${RANGEES.map((r) => `<div class="kb-rang">${r.map(touche).join("")}</div>`).join("")}</div>
+    <div class="kb-fleches">
+      <span></span>${touche(["ArrowUp", 1, "↑"])}<span></span>
+      ${touche(["ArrowLeft", 1, "←"])}${touche(["ArrowDown", 1, "↓"])}${touche(["ArrowRight", 1, "→"])}
+    </div>`;
+
+  // Le titre en lettres ASCII, affiché quand l'écran s'allume
+  const TITRE = [
+    " ___ _  _   _   _  _____ ",
+    "/ __| \\| | /_\\ | |/ / __|",
+    "\\__ \\ .` |/ _ \\| ' <| _| ",
+    "|___/_|\\_/_/ \\_\\_|\\_\\___|",
+  ].join("\n");
+
   function lancerSnake() {
-    // La scène : on s'approche d'un vieux moniteur cathodique, l'écran s'allume, le Snake se lance dedans
+    // La scène : on s'approche d'un bureau avec un vieux moniteur, l'écran s'allume, le Snake se lance dedans
     const scene = document.createElement("div");
-    scene.className = "crt-scene";
+    scene.className = "crt-scene" + (tactile ? " crt-tactile" : "");
     scene.setAttribute("role", "dialog");
     scene.setAttribute("aria-label", "Jeu Snake");
     scene.innerHTML = `
-      <div class="crt-cadre">
-        <div class="crt">
-          <div class="crt-ecran"><div class="crt-contenu"></div></div>
-          <div class="crt-facade"><span class="crt-marque">AR-80</span><span class="crt-led" aria-hidden="true"></span></div>
+      <div class="crt-monde">
+        <div class="crt-cadre">
+          <div class="crt">
+            <span class="crt-vis" style="top:2.4%;left:2.2%"></span><span class="crt-vis" style="top:2.4%;right:2.2%"></span>
+            <span class="crt-aeration" aria-hidden="true"></span>
+            <div class="crt-ecran">
+              <div class="crt-contenu">
+                <div class="snake-hud"></div>
+                <canvas class="snake-canvas" aria-label="Grille du Snake"></canvas>
+                <div class="snake-aide">${tactile ? "glisse sur l'écran ou utilise les flèches" : "← ↑ → ↓ ou ZQSD · espace pause · échap quitter"}</div>
+                <div class="snake-ecran-msg" aria-live="polite"></div>
+              </div>
+            </div>
+            <div class="crt-facade">
+              <span class="crt-marque">AR-80<small>monochrome display</small></span>
+              <span class="crt-boutons" aria-hidden="true">
+                <i class="crt-molette" style="--r:-40deg"></i><i class="crt-molette" style="--r:25deg"></i>
+                <b class="crt-power"></b><span class="crt-led"></span>
+              </span>
+            </div>
+          </div>
+          <div class="crt-pied" aria-hidden="true"></div>
         </div>
-        <div class="crt-pied" aria-hidden="true"></div>
+        ${tactile ? "" : `<div class="crt-clavier" aria-hidden="true">${clavierHTML()}</div>`}
       </div>
       ${tactile ? `<div class="snake-pad">
         <button type="button" data-dir="haut" aria-label="Haut">▲</button>
@@ -249,93 +293,213 @@
     document.body.appendChild(scene);
     saisie.blur();
 
-    // Taille de la grille selon la taille de l'écran du moniteur (1 case = 2 caractères, pour qu'elle soit carrée)
+    // Taille de la grille selon la taille de l'écran (les mesures ignorent l'animation d'arrivée)
     const ecran = scene.querySelector(".crt-contenu");
+    const hud = scene.querySelector(".snake-hud");
+    const aide = scene.querySelector(".snake-aide");
+    const msg = scene.querySelector(".snake-ecran-msg");
+    const canvas = scene.querySelector(".snake-canvas");
+    const ctx = canvas.getContext("2d");
     const limite = (n, min, max) => Math.max(min, Math.min(max, n));
-    const W = ecran.clientWidth, H = ecran.clientHeight;
-    const fs = limite(Math.round(W / 44), 10, 17);
-    ecran.style.fontSize = fs + "px";
-    const mesure = document.createElement("span");
-    mesure.textContent = "MMMMMMMMMM";
-    ecran.appendChild(mesure);
-    const cw = mesure.offsetWidth / 10;
-    mesure.remove();
-    const cols = limite(Math.floor((W - 24) / cw / 2), 10, 28);
-    const rows = limite(Math.floor((H - 2 * fs * 1.6 - 30) / (fs * 1.15)), 8, 20);
-
-    const el = document.createElement("div");
-    el.className = "snake";
-    el.innerHTML = `<div class="snake-info"></div><pre class="snake-grille" aria-label="Grille du Snake"></pre>
-      <div class="snake-aide">${tactile ? "glisse sur l'écran ou utilise les flèches" : "← ↑ → ↓ ou ZQSD · espace pause · échap quitter"}</div>`;
-    ecran.appendChild(el);
+    ecran.style.fontSize = limite(Math.round(ecran.clientWidth / 40), 10, 16) + "px";
+    hud.innerHTML = "&nbsp;";
+    const style = getComputedStyle(ecran);
+    const dispoL = ecran.clientWidth - parseFloat(style.paddingLeft) * 2;
+    const dispoH = ecran.clientHeight - parseFloat(style.paddingTop) * 2 - hud.offsetHeight - aide.offsetHeight - 16;
+    const cell = Math.floor(Math.min(dispoL / (tactile ? 16 : 24), dispoH / 11));
+    const cols = limite(Math.floor(dispoL / cell), 10, 30);
+    const rows = limite(Math.floor(dispoH / cell), 8, 20);
+    const dpr = Math.min(window.devicePixelRatio || 1, 2);
+    canvas.style.width = cols * cell + "px";
+    canvas.style.height = rows * cell + "px";
+    canvas.width = cols * cell * dpr;
+    canvas.height = rows * cell * dpr;
+    ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
 
     const DIRS = { haut: [0, -1], bas: [0, 1], gauche: [-1, 0], droite: [1, 0] };
-    const info = el.querySelector(".snake-info");
-    const grille = el.querySelector(".snake-grille");
+    jeu = { el: scene, cols, rows, record: lireRecord(), intro: true, score: 0, particules: [], etat: "titre" };
 
-    jeu = { el: scene, cols, rows, record: lireRecord(), intro: true };
-    const nouvellePartie = () => {
+    const initialiser = () => {
       const x = Math.floor(cols / 2), y = Math.floor(rows / 2);
       Object.assign(jeu, {
         corps: [[x, y], [x - 1, y], [x - 2, y]],
-        dir: [1, 0], file: [], score: 0, vitesse: 140,
-        etat: "jeu", nouveauRecord: false,
+        queuePrec: [x - 3, y], dir: [1, 0], file: [], score: 0, vitesse: 140,
+        nouveauRecord: false, dernierTour: performance.now(), mort: 0,
       });
       placerPomme();
-      dessiner();
-      if (!jeu.intro) relancer();
+    };
+    const nouvellePartie = () => {
+      initialiser();
+      jeu.etat = "jeu";
+      afficherHud();
+      afficherMessage();
+      relancer();
     };
     const placerPomme = () => {
       const libres = [];
       for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++)
         if (!jeu.corps.some(([a, b]) => a === x && b === y)) libres.push([x, y]);
       jeu.pomme = libres[Math.floor(Math.random() * libres.length)];
+      jeu.pommeNee = performance.now();
+      canvas.dataset.pomme = jeu.pomme.join(",");
     };
     const relancer = () => { clearInterval(jeu.timer); jeu.timer = setInterval(tour, jeu.vitesse); };
 
     function tour() {
-      if (jeu.etat !== "jeu") return;
+      if (!jeu || jeu.etat !== "jeu") return;
       if (jeu.file.length) jeu.dir = jeu.file.shift();
       const [hx, hy] = jeu.corps[0];
       const tete = [hx + jeu.dir[0], hy + jeu.dir[1]];
-      const mange = jeu.pomme && tete[0] === jeu.pomme[0] && tete[1] === jeu.pomme[1];
+      const mange = tete[0] === jeu.pomme[0] && tete[1] === jeu.pomme[1];
       const corps = mange ? jeu.corps : jeu.corps.slice(0, -1); // la queue avance, sauf si on mange
       if (tete[0] < 0 || tete[1] < 0 || tete[0] >= cols || tete[1] >= rows || corps.some(([a, b]) => a === tete[0] && b === tete[1])) {
         jeu.etat = "fin";
+        jeu.mort = performance.now();
         clearInterval(jeu.timer);
         if (jeu.score > jeu.record) { jeu.record = jeu.score; jeu.nouveauRecord = true; ecrireRecord(jeu.score); }
-        dessiner();
+        if (!reduit) { ecran.classList.remove("secousse"); void ecran.offsetWidth; ecran.classList.add("secousse"); }
+        afficherHud();
+        afficherMessage();
         return;
       }
+      jeu.queuePrec = mange ? null : jeu.corps[jeu.corps.length - 1];
       jeu.corps = [tete, ...corps];
+      jeu.dernierTour = performance.now();
+      canvas.dataset.tete = tete.join(",");
       if (mange) {
         jeu.score++;
         if (jeu.score >= 10) jeu.flag = true;
+        eclater(jeu.pomme);
         placerPomme();
+        afficherHud(true);
         if (jeu.vitesse > 70) { jeu.vitesse -= 4; relancer(); } // ça accélère un peu à chaque pomme
       }
-      dessiner();
     }
 
-    function dessiner() {
-      const cases = Array.from({ length: rows }, () => Array(cols).fill(`<span class="snake-vide"> ·</span>`));
-      if (jeu.pomme) cases[jeu.pomme[1]][jeu.pomme[0]] = `<span class="snake-pomme">&lt;&gt;</span>`;
-      jeu.corps.forEach(([x, y], i) => { cases[y][x] = i ? `<span class="snake-corps">▓▓</span>` : `<span class="snake-tete">██</span>`; });
-      const texte = cases.map((l) => l.join("")).join("\n");
-      // Message au centre de la grille (pause / game over)
-      const msg = jeu.etat === "pause" ? ["PAUSE", tactile ? "touche ❚❚ pour reprendre" : "espace pour reprendre"]
-        : jeu.etat === "fin" ? ["GAME OVER", jeu.nouveauRecord ? "★ nouveau record ★" : `score : ${jeu.score}`, ...(jeu.score >= 10 ? ["🚩 flag débloqué, quitte pour le voir"] : []), tactile ? "touche la grille pour rejouer" : "entrée pour rejouer · échap quitter"]
-        : null;
-      grille.innerHTML = texte;
-      grille.classList.toggle("snake-voile", !!msg);
-      if (msg) grille.insertAdjacentHTML("beforeend", `<span class="snake-msg">${msg.map((m, i) => i ? `<small>${m}</small>` : `<b>${m}</b>`).join("")}</span>`);
-      info.innerHTML = `${v("snake")} ${g("·")} score ${v(String(jeu.score).padStart(3, "0"))} ${g("·")} record ${v(String(jeu.record).padStart(3, "0"))}`;
+    // Petite explosion de pixels quand on mange une pomme
+    function eclater([x, y]) {
+      if (reduit) return;
+      for (let i = 0; i < 16; i++) {
+        const a = (Math.PI * 2 * i) / 16 + Math.random() * 0.4, v = 0.04 + Math.random() * 0.08;
+        jeu.particules.push({ x: (x + 0.5) * cell, y: (y + 0.5) * cell, vx: Math.cos(a) * v * cell, vy: Math.sin(a) * v * cell, vie: 1, rouge: i % 3 === 0 });
+      }
+    }
+
+    function afficherHud(bump) {
+      const n = (x) => String(x).padStart(3, "0");
+      hud.innerHTML = `<span>SNAKE</span><span>score <b class="${bump ? "bump" : ""}">${n(jeu.score)}</b></span><span>record <b>${n(jeu.record)}</b></span>`;
+    }
+    function afficherMessage() {
+      const touche2 = tactile ? "touche l'écran" : "appuie sur une touche";
+      const e = jeu.etat;
+      msg.className = "snake-ecran-msg" + (e === "jeu" ? "" : " visible");
+      msg.innerHTML = e === "titre" ? `<pre class="snake-titre">${esc(TITRE)}</pre>
+          <p class="snake-clignote">▶ ${touche2} pour jouer</p>
+          <small>record : ${jeu.record} · mange 10 pommes pour un flag 🚩</small>`
+        : e === "pause" ? `<b>PAUSE</b><small>${tactile ? "touche ❚❚ pour reprendre" : "espace pour reprendre"}</small>`
+        : e === "fin" ? `<b>GAME OVER</b><small>${jeu.nouveauRecord ? "★ nouveau record ★" : `score : ${jeu.score}`}</small>
+          ${jeu.score >= 10 ? "<small>🚩 flag débloqué, quitte pour le voir</small>" : ""}
+          <p class="snake-clignote">${tactile ? "touche l'écran pour rejouer" : "entrée pour rejouer · échap quitter"}</p>`
+        : "";
+    }
+
+    // ----- Dessin, image par image : traînée du phosphore, serpent fluide, pomme qui pulse -----
+    const centre = ([x, y]) => [(x + 0.5) * cell, (y + 0.5) * cell];
+    const lerp = (a, b, t) => [a[0] + (b[0] - a[0]) * t, a[1] + (b[1] - a[1]) * t];
+    const melange = (t) => { // du vert clair (tête) au vert profond (queue)
+      const a = [124, 245, 198], b = [12, 104, 72];
+      return `rgb(${a.map((v, i) => Math.round(v + (b[i] - v) * t)).join(",")})`;
+    };
+    function dessiner(now) {
+      if (!jeu) return;
+      jeu.raf = requestAnimationFrame(dessiner);
+      const L = cols * cell, H = rows * cell;
+      // on n'efface pas tout : l'image précédente reste un peu, comme la rémanence d'un vieux tube
+      ctx.fillStyle = reduit ? "rgb(5,14,10)" : "rgba(5,14,10,0.55)";
+      ctx.fillRect(0, 0, L, H);
+      // grille de points
+      ctx.fillStyle = "rgba(142,165,154,0.10)";
+      for (let y = 0; y < rows; y++) for (let x = 0; x < cols; x++) ctx.fillRect((x + 0.5) * cell - 1, (y + 0.5) * cell - 1, 2, 2);
+
+      const enJeu = jeu.etat === "jeu";
+      const t = enJeu ? Math.max(0, Math.min(1, (now - jeu.dernierTour) / jeu.vitesse)) : 1;
+
+      // la pomme
+      if (jeu.pomme && jeu.etat !== "titre") {
+        const [px, py] = centre(jeu.pomme);
+        const nait = Math.max(0, Math.min(1, (now - jeu.pommeNee) / 220));
+        const r = cell * 0.28 * nait * (1 + (reduit ? 0 : 0.1 * Math.sin(now / 170)));
+        ctx.save();
+        ctx.shadowColor = "rgba(229,83,75,0.9)"; ctx.shadowBlur = cell * 0.7;
+        ctx.fillStyle = "#e5534b";
+        ctx.beginPath(); ctx.arc(px, py + cell * 0.03, r, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "rgba(255,255,255,0.35)";
+        ctx.beginPath(); ctx.arc(px - r * 0.35, py - r * 0.3, r * 0.25, 0, Math.PI * 2); ctx.fill();
+        ctx.fillStyle = "#34d399";
+        ctx.beginPath(); ctx.ellipse(px + r * 0.35, py - r * 1.05, r * 0.38, r * 0.18, -0.6, 0, Math.PI * 2); ctx.fill();
+        ctx.restore();
+      }
+
+      // le serpent : une ligne arrondie qui passe par chaque case, la tête glisse entre deux cases
+      if (jeu.etat !== "titre") {
+        const c = jeu.corps, n = c.length;
+        const pts = [lerp(c[1], c[0], t), ...c.slice(1)];
+        if (jeu.queuePrec) pts.push(lerp(jeu.queuePrec, c[n - 1], t));
+        const px = pts.map(centre);
+        const clignote = jeu.etat === "fin" && !reduit && now - jeu.mort < 900 && Math.floor((now - jeu.mort) / 150) % 2 === 0;
+        ctx.save();
+        ctx.globalAlpha = clignote ? 0.25 : 1;
+        ctx.lineCap = ctx.lineJoin = "round";
+        ctx.shadowColor = "rgba(52,211,153,0.85)"; ctx.shadowBlur = cell * 0.8;
+        ctx.strokeStyle = "#1fbf86"; ctx.lineWidth = cell * 0.62;
+        ctx.beginPath(); px.forEach(([x, y], i) => (i ? ctx.lineTo(x, y) : ctx.moveTo(x, y))); ctx.stroke();
+        ctx.shadowBlur = 0;
+        for (let i = 0; i < px.length - 1; i++) {
+          ctx.strokeStyle = melange(i / Math.max(1, px.length - 2));
+          ctx.lineWidth = cell * (0.62 - 0.14 * (i / px.length));
+          ctx.beginPath(); ctx.moveTo(...px[i]); ctx.lineTo(...px[i + 1]); ctx.stroke();
+        }
+        // la tête, avec ses yeux tournés dans le sens de la marche
+        const [hx, hy] = px[0], [dx, dy] = jeu.dir, [qx, qy] = [-dy, dx];
+        ctx.shadowColor = "rgba(124,245,198,0.9)"; ctx.shadowBlur = cell * 0.6;
+        ctx.fillStyle = "#9af7d3";
+        ctx.beginPath(); ctx.arc(hx, hy, cell * 0.4, 0, Math.PI * 2); ctx.fill();
+        ctx.shadowBlur = 0;
+        ctx.fillStyle = "#04140c";
+        for (const s of [-1, 1]) {
+          const ex = hx + dx * cell * 0.13 + qx * s * cell * 0.17, ey = hy + dy * cell * 0.13 + qy * s * cell * 0.17;
+          if (jeu.etat === "fin") { // des yeux en croix
+            ctx.strokeStyle = "#04140c"; ctx.lineWidth = Math.max(1.5, cell * 0.06); const k = cell * 0.07;
+            ctx.beginPath(); ctx.moveTo(ex - k, ey - k); ctx.lineTo(ex + k, ey + k); ctx.moveTo(ex + k, ey - k); ctx.lineTo(ex - k, ey + k); ctx.stroke();
+          } else { ctx.beginPath(); ctx.arc(ex, ey, cell * 0.075, 0, Math.PI * 2); ctx.fill(); }
+        }
+        ctx.restore();
+      }
+
+      // les particules
+      jeu.particules = jeu.particules.filter((p) => (p.vie -= 0.035) > 0);
+      for (const p of jeu.particules) {
+        p.x += p.vx; p.y += p.vy; p.vx *= 0.94; p.vy *= 0.94;
+        ctx.globalAlpha = p.vie;
+        ctx.fillStyle = p.rouge ? "#ff8a80" : "#7cf5c6";
+        const s = Math.max(2, cell * 0.12);
+        ctx.fillRect(p.x - s / 2, p.y - s / 2, s, s);
+      }
+      ctx.globalAlpha = 1;
+
+      // flash au moment de perdre
+      if (jeu.etat === "fin" && !reduit) {
+        const f = Math.min(1, 1 - (now - jeu.mort) / 300);
+        if (f > 0) { ctx.fillStyle = `rgba(229,83,75,${0.25 * f})`; ctx.fillRect(0, 0, L, H); }
+      }
     }
 
     // Changement de direction (on refuse le demi-tour sur soi-même)
     jeu.tourner = (nom) => {
+      if (jeu.etat === "titre") { nouvellePartie(); if (nom === "gauche") return; }
       if (jeu.etat === "fin") return;
-      if (jeu.etat === "pause") jeu.etat = "jeu";
+      if (jeu.etat === "pause") { jeu.etat = "jeu"; afficherMessage(); }
       const d = DIRS[nom];
       const derniere = jeu.file[jeu.file.length - 1] || jeu.dir;
       if (d[0] === -derniere[0] && d[1] === -derniere[1]) return;
@@ -343,9 +507,11 @@
       if (jeu.file.length < 3) jeu.file.push(d);
     };
     jeu.pause = () => {
+      if (jeu.etat === "titre") return nouvellePartie();
       if (jeu.etat === "fin") return;
       jeu.etat = jeu.etat === "pause" ? "jeu" : "pause";
-      dessiner();
+      jeu.dernierTour = performance.now();
+      afficherMessage();
     };
     jeu.rejouer = nouvellePartie;
     // Fin de l'animation d'approche (ou on la passe en appuyant sur une touche / en cliquant)
@@ -354,24 +520,22 @@
       jeu.intro = false;
       clearTimeout(jeu.introTimer);
       scene.classList.add("crt-pret");
-      relancer();
     };
     jeu.introTimer = setTimeout(jeu.finIntro, reduit ? 0 : 1900);
     scene.addEventListener("pointerdown", () => jeu && jeu.finIntro());
 
-    // Tactile : glisser sur la grille, ou les boutons du pad
+    // Tactile : glisser sur l'écran, ou les boutons du pad
     let depart = null;
-    const zone = ecran;
-    zone.addEventListener("touchstart", (e) => { depart = [e.touches[0].clientX, e.touches[0].clientY]; }, { passive: true });
-    zone.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
-    zone.addEventListener("touchend", (e) => {
+    ecran.addEventListener("touchstart", (e) => { depart = [e.touches[0].clientX, e.touches[0].clientY]; }, { passive: true });
+    ecran.addEventListener("touchmove", (e) => e.preventDefault(), { passive: false });
+    ecran.addEventListener("touchend", (e) => {
       if (!depart) return;
       const dx = e.changedTouches[0].clientX - depart[0], dy = e.changedTouches[0].clientY - depart[1];
       depart = null;
-      if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) { if (jeu.etat === "fin") nouvellePartie(); return; }
+      if (Math.max(Math.abs(dx), Math.abs(dy)) < 20) { if (jeu.etat === "fin" || jeu.etat === "titre") nouvellePartie(); return; }
       jeu.tourner(Math.abs(dx) > Math.abs(dy) ? (dx > 0 ? "droite" : "gauche") : (dy > 0 ? "bas" : "haut"));
     });
-    grille.addEventListener("click", () => { if (!tactile && jeu.etat === "fin") nouvellePartie(); });
+    ecran.addEventListener("click", () => { if (!tactile && (jeu.etat === "fin" || jeu.etat === "titre")) nouvellePartie(); });
     scene.querySelectorAll(".snake-pad button").forEach((b) => b.addEventListener("pointerdown", (e) => {
       e.preventDefault();
       if (b.dataset.dir) jeu.tourner(b.dataset.dir);
@@ -379,19 +543,23 @@
       else quitterSnake();
     }));
 
-    nouvellePartie();
+    initialiser();
+    afficherHud();
+    afficherMessage();
+    jeu.raf = requestAnimationFrame(dessiner);
   }
 
   function quitterSnake(immediat = false) {
     if (!jeu) return;
     clearInterval(jeu.timer);
     clearTimeout(jeu.introTimer);
+    cancelAnimationFrame(jeu.raf);
     if (jeu.score > jeu.record) { jeu.record = jeu.score; ecrireRecord(jeu.score); } // si on quitte en pleine partie
     const { el, score, record, flag } = jeu;
     jeu = null;
     // L'écran s'éteint, on recule, puis on retrouve le terminal
     if (immediat || reduit) el.remove();
-    else { el.classList.add("crt-depart"); setTimeout(() => el.remove(), 700); }
+    else { el.classList.add("crt-depart"); setTimeout(() => el.remove(), 750); }
     afficher([`${g("snake terminé ·")} score ${v(score)} ${g("·")} record ${v(record)}`]);
     if (flag) afficher([`🚩 10 points, bien joué ! Voici ton flag : ${v(atob("RkxBR3tzbjRrM19tNHN0M3J9"))}`, g("Valide-le avec ") + v("submit") + g(" suivi du flag.")]);
     afficher([""]);
@@ -405,11 +573,14 @@
   };
   document.addEventListener("keydown", (e) => {
     if (!jeu || e.ctrlKey || e.metaKey || e.altKey) return;
+    // la touche s'enfonce aussi sur le clavier dessiné
+    const k = jeu.el.querySelector(`[data-k="${e.code}"]`);
+    if (k) { k.classList.add("appuie"); setTimeout(() => k.classList.remove("appuie"), 140); }
     if (jeu.intro && e.key !== "Escape" && e.key !== "q") { jeu.finIntro(); if (!(TOUCHES[e.key] || TOUCHES[e.code])) { e.preventDefault(); return; } }
     const dir = TOUCHES[e.key] || TOUCHES[e.code];
     if (dir) jeu.tourner(dir);
     else if (e.key === " " || e.key === "p") jeu.pause();
-    else if (e.key === "Enter" && jeu.etat === "fin") jeu.rejouer();
+    else if (e.key === "Enter" && (jeu.etat === "fin" || jeu.etat === "titre")) jeu.rejouer();
     else if (e.key === "Escape" || e.key === "q") quitterSnake();
     else return;
     e.preventDefault();
