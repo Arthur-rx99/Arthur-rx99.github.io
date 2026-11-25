@@ -196,6 +196,13 @@ if (atouts) {
   new IntersectionObserver(([e]) => { if (e.isIntersecting) relancer(); else clearTimeout(minuteur); }, { threshold: 0.4 }).observe(atouts);
 }
 
+// Photo de profil absente : on la retire pour laisser les initiales (remplace l'ancien onerror en ligne, bloqué par la CSP)
+const photo = document.querySelector(".avatar img");
+if (photo) {
+  const retirer = () => photo.remove();
+  if (photo.complete && !photo.naturalWidth) retirer(); else photo.addEventListener("error", retirer);
+}
+
 // ===== Navigation : fond au scroll, menu mobile, lien actif =====
 const nav = document.getElementById("nav");
 const burger = document.getElementById("burger");
