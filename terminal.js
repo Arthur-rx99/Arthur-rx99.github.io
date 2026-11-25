@@ -90,6 +90,42 @@
     const n = trouves.size, total = FLAGS.length;
     return `${v("█".repeat(n))}${g("░".repeat(total - n))}  ${v(n)}/${total} flags trouvés`;
   };
+  // ----- Score personnel : chrono du CTF, gardé uniquement dans ce navigateur -----
+  // Pas de classement partagé : sans serveur, n'importe qui pourrait truquer son temps.
+  const CLE_CHRONO = "ctf-chrono";   // { debut, fin } en millisecondes
+  const CLE_RECORD_CTF = "ctf-record"; // meilleur temps, gardé même après « score reset »
+  const nombre = (x) => typeof x === "number" && Number.isFinite(x) && x > 0;
+  const lireChrono = () => {
+    try {
+      const o = JSON.parse(localStorage.getItem(CLE_CHRONO));
+      if (!o || !nombre(o.debut)) return null;
+      return nombre(o.fin) && o.fin >= o.debut ? { debut: o.debut, fin: o.fin } : { debut: o.debut };
+    } catch { return null; }
+  };
+  const ecrireChrono = (o) => { try { o ? localStorage.setItem(CLE_CHRONO, JSON.stringify(o)) : localStorage.removeItem(CLE_CHRONO); } catch {} };
+  const lireRecordCtf = () => { try { const n = +localStorage.getItem(CLE_RECORD_CTF); return nombre(n) ? n : 0; } catch { return 0; } };
+  let chrono = lireChrono();
+  const demarrerChrono = () => {
+    if (chrono || trouves.size === FLAGS.length) return; // déjà lancé, ou CTF fini avant l'arrivée du chrono
+    chrono = { debut: Date.now() }; ecrireChrono(chrono);
+  };
+  const arreterChrono = () => {
+    if (!chrono || chrono.fin) return;
+    chrono.fin = Date.now(); ecrireChrono(chrono);
+    const ms = chrono.fin - chrono.debut, record = lireRecordCtf();
+    if (!record || ms < record) try { localStorage.setItem(CLE_RECORD_CTF, ms); } catch {}
+  };
+  // 754 000 ms → « 12 min 34 s » ; 5 400 000 ms → « 1 h 30 min »
+  const duree = (ms) => {
+    const s = Math.max(0, Math.round(ms / 1000));
+    const j = Math.floor(s / 86400), h = Math.floor(s / 3600) % 24, m = Math.floor(s / 60) % 60, sec = s % 60;
+    if (j) return `${j} j ${h} h`;
+    if (h) return `${h} h ${String(m).padStart(2, "0")} min`;
+    if (m) return `${m} min ${String(sec).padStart(2, "0")} s`;
+    return `${sec} s`;
+  };
+  const tempsFinal = () => (chrono && chrono.fin ? chrono.fin - chrono.debut : 0);
+
   async function empreinte(texte) {
     const octets = await crypto.subtle.digest("SHA-256", new TextEncoder().encode(texte));
     return [...new Uint8Array(octets)].map((b) => b.toString(16).padStart(2, "0")).join("");
@@ -100,13 +136,142 @@
     const h = await empreinte(flag.trim());
     const i = FLAGS.findIndex(([x]) => x === h);
     if (i < 0) return afficher([`✗ ${esc(flag)} n'est pas un flag valide. Continue de chercher 🔍`]);
+    demarrerChrono(); // si on valide un flag sans être passé par « ctf », le chrono part ici
     if (trouves.has(i)) return afficher([`Tu as déjà trouvé ce flag 😉`, progression()]);
     trouves.add(i); ecrireFlags([...trouves]);
     const lignes = [`${v(`✓ Flag n°${i + 1} validé !`)} Bien joué.`, progression()];
+    if (trouves.size === FLAGS.length) arreterChrono();
     if (trouves.size === FLAGS.length) lignes.push("",
       `<span class="t-guide">🏆 Bravo, tu as trouvé les ${FLAGS.length} flags ! Tu as l'âme d'un pentester.</span>`,
+      ...(tempsFinal() ? [`⏱ Ton temps : ${v(duree(tempsFinal()))}. Récupère ton certificat avec ${c("certificat")} ${g("(ou certificat TonPseudo)")}`] : []),
       `Ça te dirait de travailler avec quelqu'un qui aime ça autant que toi ? → ${c("contact")}`);
     afficher(lignes);
+  }
+
+  function afficherScore(args) {
+    if (args[0] === "reset") {
+      if (args[1] !== "--oui") return [
+        "Ça efface tes flags et ton chrono pour recommencer le CTF à zéro (ton record est gardé).",
+        `Pour confirmer, tape ${c("score reset --oui")}`,
+      ];
+      trouves.clear(); ecrireFlags([]); chrono = null; ecrireChrono(null);
+      return [`CTF remis à zéro. Le chrono repartira quand tu taperas ${c("ctf")}. Bonne chasse 🔍`];
+    }
+    const record = lireRecordCtf();
+    const ligneRecord = record ? [`${g("record")}       ${v(duree(record))} ${g("(ton meilleur temps dans ce navigateur)")}`] : [];
+    if (tempsFinal()) return [
+      `${v("Ton score")} ${g("· chasse aux flags")}`,
+      progression(),
+      `${g("temps")}        ${v(duree(tempsFinal()))} 🏆`,
+      ...ligneRecord,
+      "",
+      `Télécharge ton certificat : ${c("certificat")} ${g("(ou certificat TonPseudo pour y mettre ton nom)")}`,
+      g("Rejouer : ") + c("score reset"),
+    ];
+    if (trouves.size === FLAGS.length) return [
+      progression(),
+      "Tu as fini le CTF avant l'arrivée du chrono, donc pas de temps enregistré.",
+      `Tu veux te chronométrer ? ${c("score reset")} puis ${c("ctf")}.`,
+    ];
+    if (!chrono) return [
+      progression(),
+      `Le chrono n'a pas encore démarré : il se lance quand tu tapes ${c("ctf")}.`,
+      ...ligneRecord,
+    ];
+    return [
+      `${v("Ton score")} ${g("· chasse aux flags")}`,
+      progression(),
+      `${g("chrono")}       ${v(duree(Date.now() - chrono.debut))} ${g("et ça tourne…")}`,
+      ...ligneRecord,
+      g(`Trouve les ${FLAGS.length - trouves.size} flag(s) restant(s) pour arrêter le chrono. Indices : `) + c("ctf"),
+    ];
+  }
+
+  // ----- Certificat « CTF terminé en X min » : une image PNG dessinée dans le navigateur -----
+  // Le pseudo est seulement dessiné sur l'image (jamais injecté en HTML)
+  const nettoyerPseudo = (t) => [...String(t).replace(/[\u0000-\u001f\u007f-\u009f]/g, "").trim()].slice(0, 24).join("");
+  function dessinerCertificat(pseudo, ms) {
+    const W = 1200, H = 630;
+    const cv = document.createElement("canvas");
+    cv.width = W; cv.height = H;
+    const x = cv.getContext("2d");
+    if (!x.roundRect) x.roundRect = function (a, b, w, h) { this.rect(a, b, w, h); }; // vieux navigateurs : coins droits
+    const VERT = "#34d399", TITRE = "#f0f7f3", GRIS = "#8ea59a";
+    const TECH = '"Share Tech", "Space Grotesk", sans-serif', MONO = '"JetBrains Mono", monospace';
+    // fond sombre + lueurs vertes, comme le site
+    x.fillStyle = "#0a110e"; x.fillRect(0, 0, W, H);
+    for (const [cx, cy, r] of [[120, 90, 520], [1080, 560, 520]]) {
+      const lueur = x.createRadialGradient(cx, cy, 0, cx, cy, r);
+      lueur.addColorStop(0, "rgba(16, 185, 129, 0.22)"); lueur.addColorStop(1, "rgba(16, 185, 129, 0)");
+      x.fillStyle = lueur; x.fillRect(0, 0, W, H);
+    }
+    // quadrillage discret
+    x.strokeStyle = "rgba(52, 211, 153, 0.05)"; x.lineWidth = 1;
+    for (let i = 0; i <= W; i += 40) { x.beginPath(); x.moveTo(i + 0.5, 0); x.lineTo(i + 0.5, H); x.stroke(); }
+    for (let j = 0; j <= H; j += 40) { x.beginPath(); x.moveTo(0, j + 0.5); x.lineTo(W, j + 0.5); x.stroke(); }
+    // fenêtre de terminal
+    const M = 48, R = 18;
+    x.beginPath(); x.roundRect(M, M, W - 2 * M, H - 2 * M, R);
+    x.fillStyle = "rgba(17, 28, 23, 0.88)"; x.fill();
+    x.strokeStyle = "rgba(52, 211, 153, 0.45)"; x.lineWidth = 2; x.stroke();
+    x.save(); x.beginPath(); x.roundRect(M, M, W - 2 * M, 52, [R, R, 0, 0]); x.clip();
+    x.fillStyle = "rgba(52, 211, 153, 0.10)"; x.fillRect(M, M, W - 2 * M, 52); x.restore();
+    x.strokeStyle = "rgba(52, 211, 153, 0.25)"; x.beginPath(); x.moveTo(M, M + 52); x.lineTo(W - M, M + 52); x.stroke();
+    x.textBaseline = "middle";
+    x.font = `20px ${MONO}`; x.fillStyle = VERT; x.fillText(">_", M + 24, M + 27);
+    x.fillStyle = GRIS; x.fillText("arthur@portfolio: ~/ctf", M + 64, M + 27);
+    x.textAlign = "right"; x.fillText("–  □  ×", W - M - 24, M + 27); x.textAlign = "left";
+    // contenu
+    const L = M + 64;
+    x.font = `22px ${MONO}`; x.fillStyle = VERT; x.fillText("$", L, 168);
+    x.fillStyle = TITRE; x.fillText("./certificat --ctf", L + 26, 168);
+    x.font = `64px ${TECH}`; x.fillStyle = TITRE; x.fillText("CTF TERMINÉ", L, 248);
+    x.font = `28px ${TECH}`; x.fillStyle = GRIS;
+    x.fillText(pseudo ? "décerné à" : "chasse aux flags du portfolio d'Arthur Roux", L, 308);
+    if (pseudo) { const w = x.measureText("décerné à ").width; x.fillStyle = VERT; x.fillText(pseudo, L + w, 308); }
+    // le temps, en grand
+    x.font = `26px ${MONO}`; x.fillStyle = GRIS; x.fillText("temps", L, 384);
+    x.font = `92px ${TECH}`; x.fillStyle = VERT;
+    x.shadowColor = "rgba(52, 211, 153, 0.55)"; x.shadowBlur = 24;
+    x.fillText(duree(ms), L, 452); x.shadowBlur = 0;
+    // barre de progression 5/5
+    x.font = `26px ${MONO}`; x.fillStyle = VERT;
+    x.fillText("█".repeat(FLAGS.length), L, 532);
+    x.fillStyle = TITRE; x.fillText(`  ${FLAGS.length}/${FLAGS.length} flags trouvés`, L + x.measureText("█".repeat(FLAGS.length)).width, 532);
+    // pied : date + adresse du site
+    x.textAlign = "right"; x.font = `22px ${MONO}`; x.fillStyle = GRIS;
+    x.fillText(new Date(chrono.fin).toLocaleDateString("fr-FR", { day: "numeric", month: "long", year: "numeric" }), W - M - 40, 492);
+    x.fillStyle = VERT; x.fillText("arthur-rx99.github.io", W - M - 40, 532);
+    // petit drapeau dessiné (pas d'emoji : son rendu change selon l'appareil)
+    const fx = W - M - 190, fy = 150;
+    x.fillStyle = GRIS; x.fillRect(fx, fy, 6, 150);
+    x.fillStyle = VERT; x.beginPath(); x.moveTo(fx + 6, fy); x.lineTo(fx + 120, fy + 32); x.lineTo(fx + 6, fy + 64); x.closePath(); x.fill();
+    x.textAlign = "left";
+    return cv;
+  }
+  async function certificat(brut) {
+    const ms = tempsFinal();
+    if (!ms) return afficher(trouves.size === FLAGS.length
+      ? [`Pas de temps enregistré pour ce CTF. ${c("score reset")} pour te chronométrer.`]
+      : [`Le certificat se débloque quand tu as trouvé les ${FLAGS.length} flags (${trouves.size}/${FLAGS.length} pour l'instant). Indices : ${c("ctf")}`]);
+    const pseudo = nettoyerPseudo(brut);
+    try { await Promise.all([`64px "Share Tech"`, `22px "JetBrains Mono"`].map((f) => document.fonts.load(f))); } catch {}
+    const blob = await new Promise((ok) => dessinerCertificat(pseudo, ms).toBlob(ok, "image/png"));
+    if (!blob) return afficher(["Impossible de créer l'image sur ce navigateur 😕"]);
+    const nom = "certificat-ctf-arthur-roux.png";
+    const texte = `J'ai terminé le CTF du portfolio d'Arthur Roux en ${duree(ms)} 🚩 https://arthur-rx99.github.io`;
+    // Sur téléphone : le menu « Partager » du système (si possible), sinon téléchargement
+    const fichier = typeof File === "function" ? new File([blob], nom, { type: "image/png" }) : null;
+    if (tactile && fichier && navigator.canShare && navigator.canShare({ files: [fichier] })) {
+      try { await navigator.share({ files: [fichier], text: texte }); return afficher([`Certificat partagé ✓`]); }
+      catch (e) { if (e && e.name === "AbortError") return afficher([g("Partage annulé.")]); }
+    }
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement("a");
+    a.href = url; a.download = nom;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
+    afficher([`Téléchargement de ${v(nom)}… ✓`, g("Partage-le où tu veux (LinkedIn, Discord…) !")]);
   }
 
   const SECTIONS = { accueil: "accueil", apropos: "apropos", about: "apropos", competences: "competences", projets: "projets", parcours: "parcours", loisirs: "loisirs", contact: "contact" };
@@ -124,6 +289,7 @@
       `  ${c("cv")}               télécharger mon CV`,
       `  ${c("contact")}          me joindre`,
       `  ${c("ctf")}              chasse aux flags : ${FLAGS.length} flags cachés sur le site`,
+      `  ${c("score")}            ton temps sur la chasse aux flags`,
       `  ${c("clear")}            effacer l'écran · ${c("exit")} fermer`,
       g("Astuces : Tab complète, ↑ ↓ rappellent les commandes. Il y a aussi des commandes cachées…"),
     ],
@@ -180,15 +346,18 @@
       return [`Téléchargement de ${v("CV-Arthur-Roux.pdf")}… ✓`];
     },
     contact: () => FICHIERS["contact.txt"](),
-    ctf: () => [
+    ctf: () => (demarrerChrono(), [
       `${v("Chasse aux flags")} ${g("· un mini CTF pour les curieux")}`,
       `${FLAGS.length} flags de la forme ${v("FLAG{...}")} sont cachés sur ce site. Trouve-les et valide-les avec ${v("submit FLAG{...}")}.`,
       "",
       ...FLAGS.map(([, indice], i) => `${trouves.has(i) ? v("✓") : g("○")} ${g(`${i + 1}.`)} ${indice}`),
       "",
       progression(),
+      chrono && !chrono.fin ? `⏱ Chrono lancé ! Tape ${c("score")} pour voir ton temps.` : `Ton score : ${c("score")}`,
       g("Ta progression reste enregistrée dans ce navigateur."),
-    ],
+    ]),
+    score: (args) => afficherScore(args),
+    certificat: (args) => { certificat(args.join(" ")); return []; },
     submit: (args) => { soumettre(args.join(" ")); return []; },
     base64: (args) => {
       const texte = args.filter((a) => a !== "-d" && a !== "--decode").join("");
