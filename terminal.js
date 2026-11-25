@@ -75,7 +75,7 @@
     ["2a7d63681296f0963e6623acade91972f88e2920584299a315157ee829b850bb", "Les développeurs discutent dans la console du navigateur (F12, onglet Console)."],
     ["5edf270441a0a14d7bee2aeb3eabaf0a2c2e8857381cf2c865ff285eb94d2aa8", "Les robots des moteurs de recherche ont leur propre fichier de consignes (/robots.txt)."],
     ["133a41f34660cd8d63933c429a2099c9a665b556a1fa00e6ad7c0637bc61834f", "Sous Linux, les fichiers cachés commencent par un point. Liste-les avec ls -a."],
-    ["3a060fd263c7e7a2cecf86f48ab43dd0812c327c2adc33cc643adb109a213d49", "Les meilleurs joueurs sont récompensés : fais 10 points au snake."],
+    ["3a060fd263c7e7a2cecf86f48ab43dd0812c327c2adc33cc643adb109a213d49", "Tape snake dans le terminal pour lancer le jeu, puis fais 10 points."],
   ];
   const CLE_FLAGS = "ctf-flags";
   const lireFlags = () => { try { return JSON.parse(localStorage.getItem(CLE_FLAGS)) || []; } catch { return []; } };
