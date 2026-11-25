@@ -62,6 +62,11 @@
       `${g("github")}    ${lien("https://github.com/Arthur-rx99", "github.com/Arthur-rx99")}`,
     ],
   };
+  // Ne renvoie que les vraies entrées d'une table (commandes, fichiers, sections).
+  // Sans ça, "constructor" ou "__proto__" tombaient sur des propriétés internes de JavaScript :
+  // injection de HTML dans le terminal et plantage.
+  const lire = (table, cle) => (Object.hasOwn(table, cle) ? table[cle] : null);
+
   const PROJETS = [
     ["lab-cyber", "Lab de cybersécurité (Kali, Nmap, Metasploit)", "https://github.com/Arthur-rx99/lab-pentest-kali"],
     ["restauration", "Portfolio restauration", "https://arthur-rx99.github.io/projets/restauration/"],
@@ -149,7 +154,7 @@
         g("Hmm, ça ne ressemble pas à du français. Ce == à la fin, c'est typique du base64…"),
         g("Essaie : ") + v("base64 -d &lt;texte&gt;"),
       ];
-      return FICHIERS[f] ? FICHIERS[f]() : [`cat: ${esc(f)}: fichier introuvable (tape ${v("ls")})`];
+      return lire(FICHIERS, f) ? FICHIERS[f]() : [`cat: ${esc(f)}: fichier introuvable (tape ${v("ls")})`];
     },
     projets: () => [
       ...PROJETS.map(([id, nom, url]) => `${v(id.padEnd(14, " "))}${nom} · ${lien(url, "voir")}`),
@@ -162,7 +167,7 @@
       return [`Ouverture de ${v(p[1])} dans un nouvel onglet…`];
     },
     cd: (args) => {
-      const cible = SECTIONS[(args[0] || "").replace(/\/$/, "")];
+      const cible = lire(SECTIONS, (args[0] || "").replace(/\/$/, ""));
       if (!cible) return [`cd: sections : ${Object.keys(SECTIONS).filter((k) => k !== "about").join(", ")}`];
       fermer();
       document.getElementById(cible).scrollIntoView({ behavior: "smooth" });
@@ -624,7 +629,7 @@
     if (!ligne) return;
     historique.push(ligne); pos = historique.length;
     const [cmd, ...args] = ligne.split(/\s+/);
-    const fn = COMMANDES[cmd.toLowerCase()];
+    const fn = lire(COMMANDES, cmd.toLowerCase());
     if (fn) afficher(fn(args));
     else {
       const proche = suggestion(cmd.toLowerCase());
