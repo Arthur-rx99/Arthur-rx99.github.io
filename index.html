@@ -5,7 +5,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta http-equiv="Content-Security-Policy"
-    content="default-src 'self'; script-src 'self'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src https://api.web3forms.com; object-src 'none'; base-uri 'self'; form-action 'self'">
+    content="default-src 'self'; script-src 'self' https://web3forms.com https://hcaptcha.com https://*.hcaptcha.com; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com https://hcaptcha.com https://*.hcaptcha.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src https://api.web3forms.com https://hcaptcha.com https://*.hcaptcha.com; frame-src https://hcaptcha.com https://*.hcaptcha.com; object-src 'none'; base-uri 'self'; form-action 'self'">
   <meta name="referrer" content="strict-origin-when-cross-origin">
   <title>Arthur Roux - Portfolio</title>
   <link rel="icon" href="favicon.svg" type="image/svg+xml">
@@ -418,6 +418,7 @@ PORT   STATE SERVICE
         <label>Email *<input type="email" name="email" maxlength="254" placeholder="franck.leboeuf@gmail.com" required></label>
         <label>Message *<textarea name="message" rows="5" maxlength="5000" placeholder="Salut c'est Franck Leboeuf !" required></textarea></label>
         <input type="text" name="botcheck" class="piege" tabindex="-1" autocomplete="off" aria-hidden="true">
+        <div class="h-captcha" data-captcha="true" data-theme="dark" data-lang="fr"></div>
         <button type="submit" class="btn">Envoyer<span class="key-legend" aria-hidden="true">↵ Entrée</span></button>
         <p class="form-statut" id="form-statut" role="status" aria-live="polite"></p>
       </form>
@@ -441,6 +442,8 @@ PORT   STATE SERVICE
     </div>
   </div>
 
+  <!-- hCaptcha via Web3Forms : vérifié côté serveur, bloque les envois automatiques -->
+  <script src="https://web3forms.com/client/script.js" async defer></script>
   <script src="script.js"></script>
   <script src="terminal.js"></script>
 </body>

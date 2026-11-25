@@ -290,6 +290,13 @@ formulaire.addEventListener("submit", async (e) => {
     statut.textContent = `Vous avez déjà envoyé un message aujourd'hui. Réessayez dans ${[h && h + " h", m && m + " min"].filter(Boolean).join(" ")}.`;
     return;
   }
+  // Captcha (hCaptcha via Web3Forms) : le jeton est vérifié par leur serveur, un script ne peut pas s'en passer
+  const jeton = f.querySelector('[name="h-captcha-response"]');
+  if (f.querySelector(".h-captcha") && (!jeton || !jeton.value)) {
+    statut.className = "form-statut erreur";
+    statut.textContent = "Coche la case « Je suis humain » avant d'envoyer.";
+    return;
+  }
   const bouton = f.querySelector("button[type=submit]");
   bouton.disabled = true;
   statut.className = "form-statut";
@@ -311,6 +318,7 @@ formulaire.addEventListener("submit", async (e) => {
         from_name: "Portfolio Arthur Roux",
         name: f.nom.value, email: f.email.value, message: f.message.value,
         botcheck: "",
+        "h-captcha-response": jeton ? jeton.value : "",
       }),
     });
     clearTimeout(patience);
@@ -329,6 +337,7 @@ formulaire.addEventListener("submit", async (e) => {
   } finally {
     clearTimeout(delai); clearTimeout(patience);
     bouton.disabled = false;
+    if (window.hcaptcha) try { window.hcaptcha.reset(); } catch { /* captcha pas encore chargé */ }
   }
 });
 
