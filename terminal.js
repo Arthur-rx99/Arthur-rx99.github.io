@@ -35,6 +35,8 @@
     return `<span class="t-guide">→ Étape ${etape + 1}/${ETAPES.length} : tape ${c(cmd)} ${but}</span>`;
   };
 
+  const THM = "https://tryhackme.com/p/ArthurRX";
+
   const FICHIERS = {
     "about.txt": () => [
       `Arthur Roux, 23 ans, étudiant en ${v("BTS SIO")} à MyDigitalSchool Paris.`,
@@ -60,6 +62,7 @@
       `${g("email")}     ${lien("mailto:arthurroux99@gmail.com", "arthurroux99@gmail.com")}`,
       `${g("linkedin")}  ${lien("https://www.linkedin.com/in/arthurroux", "linkedin.com/in/arthurroux")}`,
       `${g("github")}    ${lien("https://github.com/Arthur-rx99", "github.com/Arthur-rx99")}`,
+      `${g("tryhackme")} ${lien(THM, "tryhackme.com/p/ArthurRX")}`,
     ],
   };
   // Ne renvoie que les vraies entrées d'une table (commandes, fichiers, sections).
@@ -288,6 +291,7 @@
       `  ${v("cd")} ${g("<section>")}     aller à une section (ex. ${c("cd contact")})`,
       `  ${c("cv")}               télécharger mon CV`,
       `  ${c("contact")}          me joindre`,
+      `  ${c("profils")}          mes profils (GitHub, LinkedIn, TryHackMe)`,
       `  ${c("ctf")}              chasse aux flags : ${FLAGS.length} flags cachés sur le site`,
       `  ${c("score")}            ton temps sur la chasse aux flags`,
       `  ${c("clear")}            effacer l'écran · ${c("exit")} fermer`,
@@ -365,6 +369,14 @@
       try { return [esc(decodeURIComponent(escape(atob(texte))))]; } catch { return ["base64: entrée invalide"]; }
     },
     github: () => { window.open("https://github.com/Arthur-rx99", "_blank", "noopener"); return ["Ouverture de GitHub…"]; },
+    profils: () => [
+      `${v("github")}     ${lien("https://github.com/Arthur-rx99", "github.com/Arthur-rx99")} ${g("· mes projets et mon code")}`,
+      `${v("linkedin")}   ${lien("https://www.linkedin.com/in/arthurroux", "linkedin.com/in/arthurroux")} ${g("· mon parcours pro")}`,
+      `${v("tryhackme")}  ${lien(THM, "tryhackme.com/p/ArthurRX")} ${g("· ma progression en cybersécurité")}`,
+      g(`Ouvre-en un directement avec ${c("github")}, ${c("linkedin")} ou ${c("tryhackme")}`),
+    ],
+    tryhackme: () => { window.open(THM, "_blank", "noopener"); return ["Ouverture de TryHackMe…"]; },
+    thm: () => COMMANDES.tryhackme(),
     linkedin: () => { window.open("https://www.linkedin.com/in/arthurroux", "_blank", "noopener"); return ["Ouverture de LinkedIn…"]; },
     date: () => [new Date().toLocaleString("fr-FR")],
     echo: (args) => [esc(args.join(" "))],

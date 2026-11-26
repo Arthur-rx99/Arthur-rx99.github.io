@@ -1006,6 +1006,7 @@ figure.avatar { margin: 0; cursor: default; transition: transform 0.35s ease, bo
 .loisir-logos img { width: 46px; height: 46px; padding: 8px; border: 1px solid var(--bordure); border-radius: 10px; background: #0b1511; transition: transform 0.3s; }
 .loisir-pentest:hover .loisir-logos img:first-child { transform: rotate(-10deg); }
 .loisir-pentest:hover .loisir-logos img:last-child { transform: rotate(10deg); }
+.link-thm { margin: 0 0 0 auto; }
 .blink { color: var(--vert); animation: clignote 1s steps(1) infinite; }
 
 @media (max-width: 900px) {
@@ -1020,7 +1021,7 @@ figure.avatar { margin: 0; cursor: default; transition: transform 0.35s ease, bo
   .avatar:hover::after, .blink { animation: none; }
 }
 .project-visual img { object-position: center top; }
-@media (max-width: 560px) { .loisir-pentest { flex-wrap: wrap; gap: 14px; } .loisir-pentest > div:last-child, .loisir-pentest h3 { width: 100%; } }
+@media (max-width: 560px) { .loisir-pentest { flex-wrap: wrap; gap: 14px; } .loisir-pentest > div:last-child, .loisir-pentest h3 { width: 100%; } .link-thm { margin-left: 0; } }
 
 /* ----- Retouches : photo éclairée, running plus compact, vrais logos de jeux ----- */
 .avatar img, .avatar:hover img { filter: none; transform: none; }
