@@ -7,8 +7,8 @@ const ctx = canvas.getContext("2d");
 const hero = document.getElementById("accueil");
 const VERT = "52, 211, 153";
 const PORTS = ["21/tcp ftp", "22/tcp ssh", "80/tcp http", "443/tcp https", "445/tcp smb", "3306/tcp mysql", "8080/tcp http-alt"];
-const PORTEE = 110;     // rayon du scanner en px
-const ETIQUETTE = 75;   // distance sous laquelle l'IP s'affiche
+const PORTEE = 90;      // rayon du scanner en px
+const ETIQUETTE = 60;   // distance sous laquelle l'IP s'affiche
 const calme = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
 
 let hotes = [];
