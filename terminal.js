@@ -46,7 +46,7 @@
       `${g("Statut :")} recherche d'alternance · Courbevoie (92)`,
     ],
     "competences.txt": () => [
-      `${v("cyber")}      Kali Linux, Nmap, Metasploit, CTF et labs`,
+      `${v("cyber")}      Kali Linux, Nmap, Metasploit, TryHackMe, CTF et labs`,
       `${v("systèmes")}   Linux, Ubuntu, VirtualBox, Cisco, Bash`,
       `${v("dev")}        HTML, CSS, JavaScript, Python, Git, GitHub`,
       `${v("ia")}         automatisation de tâches avec l'IA`,
