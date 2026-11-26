@@ -33,9 +33,9 @@
     (valide-le dans le terminal avec : submit FLAG{...})
   -->
 
-  <!--NAVIGATION-->
+  <!--NAVIGATION : une pilule flottante, façon dock-->
   <header class="nav" id="nav">
-    <a href="#accueil" class="logo"><span>&lt;</span>AR<span>/&gt;</span></a>
+    <a href="#accueil" class="logo" aria-label="Arthur Roux, retour en haut"><span>&lt;</span>AR<span>/&gt;</span></a>
     <button class="burger" id="burger" aria-label="Ouvrir le menu"><span></span><span></span><span></span></button>
     <nav class="menu" id="menu">
       <a href="#apropos">À propos</a>
@@ -44,47 +44,85 @@
       <a href="#parcours">Parcours</a>
       <a href="#contact">Contact</a>
     </nav>
+    <a href="#" class="nav-term" data-term-ouvrir><span class="prompt">&gt;_</span> terminal <kbd>Ctrl</kbd><kbd>K</kbd></a>
   </header>
 
   <!--HERO-->
   <section class="hero" id="accueil">
     <canvas id="hero-canvas" aria-hidden="true"></canvas>
-        <div class="hero-content">
-      <h1>Arthur Roux</h1>
-      <p class="hero-sub">Étudiant en BTS SIO, futur pentester.</p>
-      <p class="hero-text">À la recherche d'une <strong>alternance de 2 ans</strong> (rythme une semaine sur deux).</p>
-      <div class="hero-btns">
-        <a href="#apropos" class="btn">Faisons connaissance<span class="key-legend" aria-hidden="true">↵</span></a>
-        <a href="cv-arthur-roux.pdf" class="btn-cmd" target="_blank" rel="noopener noreferrer" aria-label="Voir mon CV"><span class="prompt">$</span> open mon-cv.pdf<span class="cursor" aria-hidden="true"></span></a>
+    <div class="hero-grid">
+      <div class="hero-content">
+        <p class="statut-pill"><span class="point" aria-hidden="true"></span>Disponible · alternance de 2 ans</p>
+        <h1><span class="h1-ligne">Arthur</span> <span class="h1-ligne h1-contour">Roux</span></h1>
+        <p class="hero-sub">Étudiant en BTS SIO, <span class="souligne">futur pentester.</span></p>
+        <p class="hero-text">À la recherche d'une <strong>alternance de 2 ans</strong> (rythme une semaine sur deux).</p>
+        <div class="hero-btns">
+          <a href="#apropos" class="btn">Faisons connaissance<span class="key-legend" aria-hidden="true">↵</span></a>
+          <a href="cv-arthur-roux.pdf" class="btn-cmd" target="_blank" rel="noopener noreferrer" aria-label="Voir mon CV"><span class="prompt">$</span> open mon-cv.pdf<span class="cursor" aria-hidden="true"></span></a>
+        </div>
+        <p class="hero-astuce">Envie d'explorer autrement ? <a href="#" data-term-ouvrir>Ouvrir le terminal</a> <kbd>Ctrl</kbd>+<kbd>K</kbd></p>
       </div>
-      <p class="hero-astuce">Envie d'explorer autrement ? <a href="#" data-term-ouvrir>Ouvrir le terminal</a> <kbd>Ctrl</kbd>+<kbd>K</kbd></p>
+
+      <div class="hero-visuel">
+        <div class="orbite" aria-hidden="true">
+          <span class="satellite s1"><img src="img/logos/kalilinux.svg" alt="" width="26" height="26"></span>
+          <span class="satellite s2"><img src="img/logos/nmap.svg" alt="" width="26" height="26"></span>
+          <span class="satellite s3"><img src="img/logos/python.svg" alt="" width="26" height="26"></span>
+        </div>
+        <figure class="avatar hud">
+          <img src="img/photo.jpg" alt="Photo d'Arthur Roux">
+          <span>AR</span>
+          <figcaption aria-hidden="true"><b>$ whoami</b>arthur · 23 ans · futur pentester</figcaption>
+        </figure>
+        <p class="badge badge-haut" aria-hidden="true"><b>C1</b>anglais</p>
+        <p class="badge badge-bas" aria-hidden="true"><b>BTS</b>SIO · Paris</p>
+      </div>
     </div>
+
+    <ul class="stats" aria-label="En bref">
+      <li><b>23</b><span>ans, Courbevoie (92)</span></li>
+      <li><b>4</b><span>projets à découvrir</span></li>
+      <li><b>3</b><span>langues : FR, EN C1, ES B1</span></li>
+      <li><a href="#" data-term-ouvrir data-term-cmd="ctf"><b>5</b><span>flags cachés sur ce site →</span></a></li>
+    </ul>
   </section>
 
-  <!--A PROPOS-->
+  <!--A PROPOS : grille « bento »-->
   <section class="section" id="apropos">
-    <div class="container about">
-      <figure class="avatar">
-        <img src="img/photo.jpg" alt="Photo d'Arthur Roux">
-        <span>AR</span>
-        <figcaption aria-hidden="true"><b>$ whoami</b>arthur · 23 ans · futur pentester</figcaption>
-      </figure>
-      <div class="reveal">
-        <h2 class="title">Faisons connaissance <span>:)</span></h2>
-        <p>Je m'appelle Arthur, j'ai <strong>23 ans</strong> et je suis étudiant en <strong>BTS SIO</strong> (Services
-          Informatiques aux Organisations) à MyDigitalSchool Paris.</p>
-        <p>Mon objectif : me spécialiser en <strong>cybersécurité</strong> et devenir <strong>pentester</strong>. En
-          parallèle, je m'amuse à développer des sites web et des applications, ce qui m'aide à comprendre comment les
-          choses fonctionnent… et comment elles peuvent casser.</p>
-        <p>Avant l'informatique, j'ai travaillé plusieurs années dans l'hôtellerie de luxe (Fouquet's, Hôtel du Louvre,
-          Dublin). Je connais donc le monde du travail, je sais comment fonctionne une entreprise et ce que l'on attend
-          d'un collaborateur. Ces expériences, en France comme à l'étranger, m'ont également permis d'acquérir un
-          <strong>très bon niveau d'anglais (C1)</strong>.</p>
-        <ul class="infos">
-          <li><span>Localisation</span>Courbevoie (92)</li>
-          <li><span>Langues</span>Français, Anglais C1, Espagnol B1</li>
-          <li><span>Statut</span>Recherche d'alternance</li>
-        </ul>
+    <div class="container">
+      <p class="hud-label reveal"><span>01</span> whoami</p>
+      <h2 class="title reveal">Faisons connaissance <span>:)</span></h2>
+      <div class="bento">
+        <article class="tuile tuile-bio hud reveal">
+          <p>Je m'appelle Arthur, j'ai <strong>23 ans</strong> et je suis étudiant en <strong>BTS SIO</strong> (Services
+            Informatiques aux Organisations) à MyDigitalSchool Paris.</p>
+          <p>Mon objectif : me spécialiser en <strong>cybersécurité</strong> et devenir <strong>pentester</strong>. En
+            parallèle, je m'amuse à développer des sites web et des applications, ce qui m'aide à comprendre comment les
+            choses fonctionnent… et comment elles peuvent casser.</p>
+          <p>Avant l'informatique, j'ai travaillé plusieurs années dans l'hôtellerie de luxe (Fouquet's, Hôtel du Louvre,
+            Dublin). Je connais donc le monde du travail, je sais comment fonctionne une entreprise et ce que l'on attend
+            d'un collaborateur. Ces expériences, en France comme à l'étranger, m'ont également permis d'acquérir un
+            <strong>très bon niveau d'anglais (C1)</strong>.</p>
+        </article>
+        <article class="tuile tuile-infos reveal">
+          <p class="tuile-titre">// fiche</p>
+          <ul class="infos">
+            <li><span>Localisation</span>Courbevoie (92)</li>
+            <li><span>Langues</span>Français, Anglais C1, Espagnol B1</li>
+            <li><span>Statut</span>Recherche d'alternance</li>
+          </ul>
+        </article>
+        <article class="tuile tuile-objectif reveal">
+          <p class="tuile-titre">// objectif</p>
+          <p class="objectif-etapes"><span>BTS SIO</span><i aria-hidden="true">→</i><span>Cybersécurité</span><i aria-hidden="true">→</i><b>Pentester</b></p>
+        </article>
+        <article class="tuile tuile-rythme reveal">
+          <p class="tuile-titre">// rythme d'alternance</p>
+          <div class="semaines" aria-label="Une semaine en entreprise, une semaine à l'école">
+            <span class="sem-ent">Entreprise</span><span>École</span><span class="sem-ent">Entreprise</span><span>École</span>
+          </div>
+          <p class="tuile-note">1 semaine sur 2 · pendant 2 ans</p>
+        </article>
       </div>
     </div>
   </section>
@@ -92,6 +130,7 @@
   <!--ATOUTS-->
   <section class="section section-alt" id="competences">
     <div class="container">
+      <p class="hud-label reveal"><span>02</span> skills</p>
       <h2 class="title reveal">À votre service !</h2>
       <p class="subtitle reveal">Ce que j'apporte à une équipe.</p>
       <div class="atouts reveal" id="atouts">
@@ -201,6 +240,7 @@
   <!--PROJETS-->
   <section class="section" id="projets">
     <div class="container">
+      <p class="hud-label reveal"><span>03</span> projects</p>
       <h2 class="title reveal">Projets</h2>
       <p class="subtitle reveal">Une sélection de ce que j'ai construit.</p>
 
@@ -211,13 +251,16 @@
       </div>
 
       <div class="projects">
-        <article class="project reveal" data-cat="cyber">
+        <article class="project project-vedette reveal" data-cat="cyber">
           <div class="project-visual cyber-visual">
+            <span class="vedette-pill">★ Projet phare</span>
             <pre>$ nmap -sV 192.168.56.101
 PORT   STATE SERVICE
 21/tcp open  ftp
 22/tcp open  ssh
-80/tcp open  http</pre>
+80/tcp open  http
+$ msfconsole -q
+msf6 > <span class="cursor" aria-hidden="true"></span></pre>
           </div>
           <div class="project-body">
             <span class="date">Mars 2026</span>
@@ -273,23 +316,30 @@ PORT   STATE SERVICE
     </div>
   </section>
 
-  <!--PARCOURS-->
+  <!--PARCOURS : présenté comme un CV-->
   <section class="section section-alt" id="parcours">
-    <div class="container">
-      <h2 class="title reveal">Parcours</h2>
-      <p class="subtitle reveal">De l'hôtellerie de luxe à la cybersécurité.</p>
+    <div class="container parcours">
+      <div class="parcours-tete">
+        <p class="hud-label reveal"><span>04</span> history</p>
+        <h2 class="title reveal">Parcours</h2>
+        <p class="subtitle reveal">De l'hôtellerie de luxe à la cybersécurité.</p>
+        <div class="cv-banner reveal">
+          <p>Consultez mon curriculum vitae</p>
+          <a href="cv-arthur-roux.pdf" download="CV-Arthur-Roux.pdf" class="btn">Télécharger mon CV<span class="key-legend" aria-hidden="true">Ctrl S</span></a>
+        </div>
+      </div>
 
-      <div class="timeline">
-        <div class="tl-item reveal">
+      <ol class="timeline">
+        <li class="tl-item highlight reveal">
           <span class="tl-date">En cours</span>
-          <div class="tl-card highlight">
+          <div class="tl-card">
             <h3>BTS Services Informatiques aux Organisations</h3>
             <p class="tl-place">MyDigitalSchool Paris</p>
             <p>Programmation, bases de données, administration des systèmes et réseaux. Objectif : poursuivre vers la
               cybersécurité et le pentest.</p>
           </div>
-        </div>
-        <div class="tl-item reveal">
+        </li>
+        <li class="tl-item reveal">
           <span class="tl-date">2025 - 2026</span>
           <div class="tl-card">
             <h3>Chef de rang · Restaurant Amazonia</h3>
@@ -297,8 +347,8 @@ PORT   STATE SERVICE
             <p>Lancement de l'établissement et mise en place de procédures, gestion des incidents en temps réel,
               autonomie sur ~50 couverts.</p>
           </div>
-        </div>
-        <div class="tl-item reveal">
+        </li>
+        <li class="tl-item reveal">
           <span class="tl-date">2025</span>
           <div class="tl-card">
             <h3>Barman · Fouquet's ★★★★★</h3>
@@ -306,16 +356,16 @@ PORT   STATE SERVICE
             <p>Encaissements et clôtures de caisse, respect de procédures strictes, avec une logique de reproductibilité
               et de traçabilité.</p>
           </div>
-        </div>
-        <div class="tl-item reveal">
+        </li>
+        <li class="tl-item reveal">
           <span class="tl-date">2024 - 2025</span>
           <div class="tl-card">
             <h3>Barman &amp; Chef de rang · Hôtel du Louvre ★★★★★</h3>
             <p class="tl-place">Paris</p>
             <p>Supervision de l'inventaire et des stocks, formation et encadrement du personnel junior.</p>
           </div>
-        </div>
-        <div class="tl-item reveal">
+        </li>
+        <li class="tl-item reveal">
           <span class="tl-date">2023 - 2024</span>
           <div class="tl-card">
             <h3>Barman · The Church Café</h3>
@@ -323,41 +373,35 @@ PORT   STATE SERVICE
             <p>Ouverture et fermeture du point de vente, communication quotidienne en anglais dans une équipe
               internationale.</p>
           </div>
-        </div>
-        <div class="tl-item reveal">
+        </li>
+        <li class="tl-item reveal">
           <span class="tl-date">2021 - 2022</span>
           <div class="tl-card">
             <h3>Mention complémentaire Barman</h3>
             <p class="tl-place">Lycée Hôtelier de La Rochelle</p>
             <p>Médaille de bronze au concours Meilleur Apprenti de France.</p>
           </div>
-        </div>
-        <div class="tl-item reveal">
+        </li>
+        <li class="tl-item reveal">
           <span class="tl-date">2018 - 2021</span>
           <div class="tl-card">
             <h3>Bac Pro Commercialisation et services en restauration</h3>
             <p class="tl-place">Lycée Hôtelier de La Rochelle</p>
             <p>Section européenne.</p>
           </div>
-        </div>
-        <div class="tl-start reveal">
-          <span class="tl-start-icon"><svg viewBox="0 0 24 24">
-              <path d="M5 21V4M5 4h11l-2 4 2 4H5" />
-            </svg></span>
+        </li>
+        <li class="tl-start reveal">
+          <span class="tl-start-icon"><svg viewBox="0 0 24 24"><path d="M5 21V4M5 4h11l-2 4 2 4H5" /></svg></span>
           Début du parcours <em>2018</em>
-        </div>
-      </div>
-
-      <div class="cv-banner reveal">
-        <p>Consultez mon curriculum vitae</p>
-        <a href="cv-arthur-roux.pdf" download="CV-Arthur-Roux.pdf" class="btn">Télécharger mon CV<span class="key-legend" aria-hidden="true">Ctrl S</span></a>
-      </div>
+        </li>
+      </ol>
     </div>
   </section>
 
   <!--HORS ECRAN-->
   <section class="section" id="loisirs">
     <div class="container">
+      <p class="hud-label reveal"><span>05</span> offline</p>
       <h2 class="title reveal">En dehors de l'écran</h2>
       <div class="loisirs reveal">
         <article class="loisir loisir-basket">
@@ -404,6 +448,7 @@ PORT   STATE SERVICE
   <section class="section section-alt" id="contact">
     <div class="container contact">
       <div class="reveal">
+        <p class="hud-label"><span>06</span> contact</p>
         <h2 class="title">Contact</h2>
         <p>Une alternance, un projet ou simplement une question ? N'hésitez pas à me contacter.</p>
         <ul class="contact-list">
@@ -429,7 +474,14 @@ PORT   STATE SERVICE
   </section>
 
   <footer class="footer">
-    <p>© Arthur Roux | <span id="year"></span></p>
+    <div class="container footer-inner">
+      <p class="footer-nom" aria-hidden="true">Arthur Roux<span>_</span></p>
+      <div class="footer-bas">
+        <p>© Arthur Roux | <span id="year"></span></p>
+        <p class="footer-astuce">Psst… tape <kbd>Ctrl</kbd>+<kbd>K</kbd>, puis <a href="#" data-term-ouvrir data-term-cmd="ctf">ctf</a>.</p>
+        <a href="#accueil" class="footer-haut">Retour en haut ↑</a>
+      </div>
+    </div>
   </footer>
 
   <!--TERMINAL INTERACTIF-->
