@@ -18,13 +18,37 @@ const scanner = { x: 0, y: 0, cibleX: 0, cibleY: 0, angle: 0 };
 let sourisActive = false;
 let dernierEcho = 0;
 
+// Hasard « à graine » : le même tirage à chaque fois. Ainsi, quand le téléphone
+// redimensionne la page (barre d'adresse qui apparaît ou disparaît, chargement
+// des polices…), les machines restent à leur place au lieu de sauter partout.
+function hasard(graine) {
+  return () => {
+    graine = (graine + 0x6d2b79f5) | 0;
+    let t = Math.imul(graine ^ (graine >>> 15), 1 | graine);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 function initFond() {
-  ratio = Math.min(window.devicePixelRatio || 1, 2);
-  largeur = hero.offsetWidth;
-  hauteur = hero.offsetHeight;
+  const nouvelleLargeur = hero.offsetWidth;
+  const nouvelleHauteur = hero.offsetHeight;
+  const nouveauRatio = Math.min(window.devicePixelRatio || 1, 2);
+  // Rien n'a changé (ex. événement resize en double sur mobile) : on ne touche à rien
+  if (nouvelleLargeur === largeur && nouvelleHauteur === hauteur && nouveauRatio === ratio) return;
+  const premiereFois = largeur === 0;
+  const memeLargeur = nouvelleLargeur === largeur;
+  largeur = nouvelleLargeur;
+  hauteur = nouvelleHauteur;
+  ratio = nouveauRatio;
   canvas.width = largeur * ratio;
   canvas.height = hauteur * ratio;
   ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
+
+  // Seule la hauteur a changé (barre d'adresse du téléphone) : on garde les machines
+  // déjà dessinées, on ajoute juste celles des nouvelles lignes s'il y en a
+  const anciennes = memeLargeur ? hotes : [];
+  const random = hasard(1337);
 
   // Une grille légèrement désordonnée : on dirait une carte réseau, pas un quadrillage
   const pas = largeur < 600 ? 70 : 88;
@@ -32,18 +56,21 @@ function initFond() {
   let n = 2;
   for (let y = pas / 2; y < hauteur; y += pas) {
     for (let x = pas / 2; x < largeur; x += pas) {
-      if (Math.random() < 0.18) continue; // quelques trous
+      if (random() < 0.18) continue; // quelques trous
+      const ancienne = anciennes[hotes.length];
       hotes.push({
-        x: x + (Math.random() - 0.5) * pas * 0.6,
-        y: y + (Math.random() - 0.5) * pas * 0.6,
+        x: x + (random() - 0.5) * pas * 0.6,
+        y: y + (random() - 0.5) * pas * 0.6,
         ip: `192.168.56.${n++ % 254 || 1}`,
-        port: PORTS[Math.floor(Math.random() * PORTS.length)],
-        vu: 0, // 1 = vient d'être scanné, redescend doucement à 0
+        port: PORTS[Math.floor(random() * PORTS.length)],
+        vu: ancienne ? ancienne.vu : 0, // 1 = vient d'être scanné, redescend doucement à 0
       });
     }
   }
-  scanner.x = scanner.cibleX = largeur * 0.7;
-  scanner.y = scanner.cibleY = hauteur * 0.45;
+  if (premiereFois) { // le scanner ne se téléporte qu'au tout premier affichage
+    scanner.x = scanner.cibleX = largeur * 0.7;
+    scanner.y = scanner.cibleY = hauteur * 0.45;
+  }
 }
 
 function dessinerFond(t) {
@@ -153,7 +180,13 @@ hero.addEventListener("pointermove", (e) => {
   sourisActive = true;
 });
 hero.addEventListener("pointerleave", () => { sourisActive = false; });
-window.addEventListener("resize", initFond);
+// Sur mobile, « resize » se déclenche en rafale pendant le défilement : un seul recalcul par image
+let resizePrevu = false;
+window.addEventListener("resize", () => {
+  if (resizePrevu) return;
+  resizePrevu = true;
+  requestAnimationFrame(() => { resizePrevu = false; initFond(); });
+});
 initFond();
 requestAnimationFrame(dessinerFond);
 
